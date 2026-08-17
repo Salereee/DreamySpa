@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dreamy Spa — Masajes y faciales en Playas de Tijuana</title>
+<meta name="description" content="Spa en Playas de Tijuana. Masajes relajantes, descontracturantes, piedras calientes, hidrofacial y jacuzzi en cabina privada. Agenda tu cita en línea.">
+
+<link rel="icon" href="img/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   DREAMY SPA — sitio de una página con agendador Cal.com
+   Identidad: verde olivo + crema, tomada del logo y el banner.
+   Criterio de diseño: pocas cajas, líneas de un pelo, mucho aire.
+   ============================================================ */
+
+:root {
+  --crema:        #f2ede3;
+  --crema-alta:   #faf8f2;
+  --olivo:        #7a8a55;
+  --olivo-hondo:  #3f4d1c;
+  --olivo-claro:  #9aa878;
+  --tinta:        #2b2f22;
+  --tinta-suave:  #6d7263;
+  --linea:        #ddd9c9;   /* hairline: casi todo el sitio se arma con esto */
+  --radio:        16px;
+
+  /* Ritmo vertical: una sola escala para todo el sitio */
+  --aire-seccion: clamp(5rem, 11vw, 9.5rem);
+  --aire-titulo:  clamp(2.5rem, 5vw, 4rem);
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; scroll-padding-top: 96px; }
+
+body {
+  margin: 0;
+  background: var(--crema);
+  color: var(--tinta);
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+  font-family: "Outfit", system-ui, sans-serif;
+  font-weight: 300;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  margin: 0;
+  color: var(--olivo-hondo);
+}
+
+p { margin: 0 0 1rem; }
+a { color: inherit; }
+img, iframe { max-width: 100%; display: block; }
+
+.contenedor        { width: min(1140px, 100% - 3rem); margin-inline: auto; }
+.contenedor--medio { width: min(980px,  100% - 3rem); margin-inline: auto; }
+.contenedor--angosto { width: min(680px, 100% - 3rem); margin-inline: auto; }
+
+/* ── Encabezados de sección ──────────────────────────────── */
+.seccion { padding: var(--aire-seccion) 0; }
+.seccion + .seccion { padding-top: 0; }   /* evita el doble colchón */
+
+.encabezado { margin-bottom: var(--aire-titulo); max-width: 46ch; }
+.encabezado--centro { margin-inline: auto; text-align: center; }
+
+.etiqueta {
+  font-size: .68rem; letter-spacing: .24em; text-transform: uppercase;
+  color: var(--olivo); font-weight: 500; margin: 0 0 1.1rem;
+}
+.titulo { font-size: clamp(2rem, 4.2vw, 3.1rem); }
+.titulo + .bajada { margin-top: 1.2rem; }
+.bajada { color: var(--tinta-suave); margin: 0; font-size: 1.03rem; }
+
+/* ── Botones ─────────────────────────────────────────────── */
+.boton {
+  display: inline-flex; align-items: center; justify-content: center; gap: .55rem;
+  padding: 1rem 2rem;
+  border: 1px solid transparent; border-radius: 999px;
+  font: inherit; font-weight: 500; font-size: .93rem;
+  text-decoration: none; cursor: pointer;
+  transition: background-color .25s ease, color .25s ease, border-color .25s ease;
+}
+.boton--principal { background: var(--olivo-hondo); color: var(--crema-alta); }
+.boton--principal:hover { background: var(--olivo); }
+
+.boton--fantasma { background: transparent; border-color: var(--olivo-claro); color: var(--olivo-hondo); }
+.boton--fantasma:hover { background: var(--olivo-hondo); border-color: var(--olivo-hondo); color: var(--crema-alta); }
+
+.boton--claro { background: var(--crema-alta); color: var(--olivo-hondo); }
+.boton--claro:hover { background: #fff; }
+
+/* Botón circular: solo icono (el teléfono del hero) */
+.boton-icono {
+  width: 52px; height: 52px; flex: 0 0 auto;
+  display: grid; place-items: center;
+  border: 1px solid var(--olivo-claro); border-radius: 50%;
+  color: var(--olivo-hondo); text-decoration: none;
+  transition: background-color .25s ease, color .25s ease;
+}
+.boton-icono:hover { background: var(--olivo-hondo); border-color: var(--olivo-hondo); color: var(--crema-alta); }
+
+:focus-visible { outline: 2px solid var(--olivo); outline-offset: 3px; }
+
+/* ── Cabecera ────────────────────────────────────────────── */
+.cabecera { position: sticky; top: 0; z-index: 50; transition: background-color .3s ease, box-shadow .3s ease; }
+.cabecera.is-fija {
+  background: color-mix(in srgb, var(--crema) 88%, transparent);
+  backdrop-filter: blur(14px) saturate(1.1);
+  box-shadow: 0 1px 0 var(--linea);
+}
+
+.cabecera__fila { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1.1rem 0; }
+
+.marca { text-decoration: none; display: flex; align-items: center; gap: .8rem; }
+.marca__logo { width: 42px; height: 42px; flex: 0 0 auto; border-radius: 11px; object-fit: cover; background: var(--olivo); }
+.marca__nombre {
+  display: block; font-family: "Outfit", sans-serif; font-weight: 400;
+  font-size: 1.12rem; color: var(--olivo-hondo); letter-spacing: .01em;
+}
+.marca__rubro { display: block; font-size: .62rem; letter-spacing: .2em; text-transform: uppercase; color: var(--tinta-suave); }
+
+.nav { display: flex; align-items: center; gap: 2.1rem; }
+.nav a { text-decoration: none; font-size: .9rem; color: var(--tinta-suave); position: relative; }
+.nav a:not(.nav__cta)::after {
+  content: ""; position: absolute; left: 0; right: 100%; bottom: -4px;
+  height: 1px; background: var(--olivo); transition: right .3s ease;
+}
+.nav a:not(.nav__cta):hover { color: var(--olivo-hondo); }
+.nav a:not(.nav__cta):hover::after { right: 0; }
+.nav__cta { color: var(--crema-alta) !important; padding: .7rem 1.4rem; font-size: .87rem; }
+
+.menu-boton { display: none; flex-direction: column; gap: 5px; background: none; border: 0; padding: .5rem; cursor: pointer; }
+.menu-boton span { width: 22px; height: 1.5px; background: var(--olivo-hondo); border-radius: 2px; transition: transform .22s ease, opacity .22s ease; }
+.menu-boton[aria-expanded="true"] span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+.menu-boton[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+.menu-boton[aria-expanded="true"] span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+/* ── Portada ─────────────────────────────────────────────── */
+.portada { padding: clamp(2rem, 5vw, 4.5rem) 0 var(--aire-seccion); }
+.portada__reja {
+  display: grid; grid-template-columns: 1fr .82fr;
+  gap: clamp(2.5rem, 6vw, 6rem); align-items: center;
+}
+
+.puntaje {
+  font-size: .84rem; color: var(--tinta-suave);
+  margin: 0 0 1.8rem; display: flex; align-items: center; gap: .6rem;
+}
+.puntaje__estrellas { color: var(--olivo); letter-spacing: .1em; }
+
+.titular { font-size: clamp(2.6rem, 5.6vw, 4.3rem); font-weight: 200; margin-bottom: 1.6rem; }
+.titular strong { font-weight: 400; }
+.entrada { font-size: 1.08rem; color: var(--tinta-suave); max-width: 44ch; margin-bottom: 2.6rem; }
+
+.portada__acciones { display: flex; flex-wrap: wrap; gap: .9rem; align-items: center; }
+
+/* Marco en arco: el mismo motivo que tienen en recepción.
+   Se usa una sola vez por foto, sin repetir imágenes. */
+.arco {
+  position: relative; margin: 0;
+  aspect-ratio: 3 / 4;
+  border-radius: 999px 999px 18px 18px;
+  overflow: hidden;
+  background: linear-gradient(160deg, var(--olivo-claro), var(--olivo));
+}
+.arco img { width: 100%; height: 100%; object-fit: cover; }
+
+/* ── Servicios ───────────────────────────────────────────── */
+/* Lista con líneas de un pelo en vez de siete tarjetas. */
+.lista-servicios { border-top: 1px solid var(--linea); }
+
+.servicio {
+  display: grid;
+  grid-template-columns: minmax(0, 15rem) minmax(0, 1fr) auto;
+  gap: 1rem 2.5rem; align-items: start;
+  padding: 2rem 0;
+  border-bottom: 1px solid var(--linea);
+}
+.servicio__nombre { font-size: 1.4rem; }
+.servicio__tipo {
+  display: block; margin-top: .5rem;
+  font-size: .66rem; letter-spacing: .2em; text-transform: uppercase; color: var(--olivo);
+}
+.servicio__texto { color: var(--tinta-suave); font-size: .96rem; margin: 0; max-width: 52ch; }
+.servicio__cifras { text-align: right; white-space: nowrap; }
+.servicio__precio { font-family: "Outfit", sans-serif; font-size: 1.5rem; font-weight: 300; color: var(--olivo-hondo); display: block; }
+.servicio__duracion { font-size: .82rem; color: var(--tinta-suave); }
+
+.nota-precios { font-size: .87rem; color: var(--tinta-suave); margin: 2rem 0 0; }
+.nota-precios a { color: var(--olivo-hondo); }
+
+/* ── El lugar ────────────────────────────────────────────── */
+.lugar__reja {
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: clamp(1.5rem, 3vw, 2.5rem);
+}
+.lugar__texto { margin-top: clamp(3rem, 6vw, 4.5rem); display: grid; grid-template-columns: repeat(3, 1fr); gap: 2.5rem; }
+.punto h3 { font-size: 1.12rem; margin-bottom: .7rem; font-weight: 400; }
+.punto p { font-size: .95rem; color: var(--tinta-suave); margin: 0; }
+
+/* ── Opiniones ───────────────────────────────────────────── */
+.reja-opiniones { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(2rem, 4vw, 3.5rem); }
+.opinion { margin: 0; }
+.opinion p { font-family: "Outfit", sans-serif; font-weight: 300; font-size: 1.15rem; line-height: 1.5; color: var(--olivo-hondo); }
+.opinion__autor { font-size: .85rem; color: var(--tinta-suave); margin: 1.2rem 0 0; padding-top: 1.2rem; border-top: 1px solid var(--linea); }
+.opinion__autor strong { color: var(--tinta); display: block; font-weight: 500; }
+
+/* ── Agendador ───────────────────────────────────────────── */
+/* Ancho completo a propósito: con menos de ~900 px Cal.com
+   apila el mes y las horas en vertical. */
+.agenda-marco { border: 1px solid var(--linea); border-radius: var(--radio); background: var(--crema-alta); overflow: hidden; }
+.cal-caja { padding: .5rem; }
+.cal-embed { width: 100%; min-height: 700px; border-radius: 12px; overflow: hidden; }
+.cal-embed iframe { width: 100% !important; min-height: 700px; border: 0; }
+
+.cal-respaldo { padding: 3.5rem 1.5rem; text-align: center; }
+.cal-respaldo p { color: var(--tinta-suave); }
+
+.agenda-nota { text-align: center; font-size: .87rem; color: var(--tinta-suave); margin: 1.5rem 0 0; }
+.agenda-nota a { color: var(--olivo-hondo); }
+
+/* ── Acordeón ────────────────────────────────────────────── */
+.acordeon { border-top: 1px solid var(--linea); }
+.acordeon details { border-bottom: 1px solid var(--linea); }
+.acordeon summary {
+  padding: 1.4rem 0; cursor: pointer; font-size: 1.08rem;
+  font-family: "Outfit", sans-serif; font-weight: 400; color: var(--olivo-hondo);
+  list-style: none; display: flex; justify-content: space-between; gap: 1.5rem;
+}
+.acordeon summary::-webkit-details-marker { display: none; }
+.acordeon summary::after { content: "+"; color: var(--olivo); font-size: 1.3rem; line-height: 1.2; font-weight: 300; }
+.acordeon details[open] summary::after { content: "–"; }
+.acordeon p { font-size: .96rem; color: var(--tinta-suave); padding-bottom: 1.4rem; margin: 0; max-width: 62ch; }
+
+/* ── Ubicación ───────────────────────────────────────────── */
+.reja-ubicacion { display: grid; gap: clamp(2.5rem, 5vw, 4rem); grid-template-columns: minmax(240px, 320px) 1fr; align-items: start; }
+.dato { margin-bottom: 2rem; }
+.dato h3 {
+  font-family: "Inter", sans-serif; font-weight: 500;
+  font-size: .68rem; letter-spacing: .2em; text-transform: uppercase;
+  color: var(--tinta-suave); margin-bottom: .6rem;
+}
+.dato p { margin: 0; font-size: .99rem; }
+.dato a { color: var(--olivo-hondo); }
+
+.tabla-horarios { width: 100%; border-collapse: collapse; font-size: .93rem; }
+.tabla-horarios td { padding: .45rem 0; border-bottom: 1px solid var(--linea); }
+.tabla-horarios tr:last-child td { border-bottom: 0; }
+.tabla-horarios td:last-child { text-align: right; color: var(--tinta-suave); }
+.tabla-horarios tr.is-hoy td { color: var(--olivo-hondo); font-weight: 500; }
+
+.mapa iframe { width: 100%; height: 100%; min-height: 420px; border: 1px solid var(--linea); border-radius: var(--radio); filter: saturate(.78) contrast(.96); }
+
+/* ── Cierre ──────────────────────────────────────────────── */
+.cierre { margin-top: var(--aire-seccion); padding: var(--aire-seccion) 0; text-align: center; background: var(--olivo-hondo); color: var(--crema); }
+.cierre h2 { font-size: clamp(2.1rem, 4.6vw, 3.3rem); color: var(--crema-alta); font-weight: 200; margin-bottom: 1.2rem; }
+.cierre p { color: rgba(242,237,227,.72); max-width: 44ch; margin: 0 auto 2.4rem; }
+.cierre .boton--fantasma { border-color: rgba(242,237,227,.45); color: var(--crema-alta); }
+.cierre .boton--fantasma:hover { background: var(--crema-alta); color: var(--olivo-hondo); border-color: var(--crema-alta); }
+
+/* ── Pie ─────────────────────────────────────────────────── */
+.pie { background: var(--olivo-hondo); color: var(--crema); padding: 0 0 2rem; }
+.pie__fila {
+  display: flex; flex-wrap: wrap; gap: 2rem; justify-content: space-between; align-items: flex-start;
+  padding-top: 3rem; border-top: 1px solid rgba(242,237,227,.14);
+}
+.pie__nombre { font-family: "Outfit", sans-serif; font-weight: 300; font-size: 1.3rem; margin-bottom: .5rem; color: var(--crema-alta); }
+.pie__linea { font-size: .88rem; opacity: .6; margin: 0; max-width: 32ch; }
+.pie__enlaces { display: flex; flex-wrap: wrap; gap: 1.5rem; font-size: .9rem; }
+.pie__enlaces a { opacity: .72; text-decoration: none; }
+.pie__enlaces a:hover { opacity: 1; }
+.pie__credito { text-align: center; font-size: .76rem; opacity: .4; margin: 3rem 0 0; }
+.pie__credito a { color: var(--crema-alta); }
+
+/* ── WhatsApp flotante (en el color de la marca, no el verde de WA) ── */
+.flotante {
+  position: fixed; right: 1.5rem; bottom: 1.5rem; z-index: 55;
+  display: inline-flex; align-items: center; gap: .6rem;
+  padding: .8rem 1.3rem;
+  background: var(--olivo-hondo); color: var(--crema-alta);
+  border-radius: 999px; text-decoration: none;
+  font-size: .88rem; font-weight: 500;
+  box-shadow: 0 12px 30px -12px rgba(43,47,34,.55);
+  transition: background-color .25s ease;
+}
+.flotante:hover { background: var(--olivo); }
+.flotante svg { flex: 0 0 auto; }
+
+/* ── Aparición al hacer scroll ───────────────────────────── */
+.revelar { opacity: 0; transform: translateY(14px); transition: opacity .8s ease, transform .8s ease; }
+.revelar.is-visible { opacity: 1; transform: none; }
+
+/* ── Responsivo ──────────────────────────────────────────── */
+@media (max-width: 1000px) {
+  .portada__reja { grid-template-columns: 1fr; }
+  .arco { aspect-ratio: 16 / 11; max-height: 380px; border-radius: 220px 220px 18px 18px; }
+  .servicio { grid-template-columns: 1fr auto; gap: .6rem 2rem; }
+  .servicio__texto { grid-column: 1 / -1; }
+  .lugar__texto { grid-template-columns: 1fr; gap: 2rem; }
+  .reja-opiniones { grid-template-columns: 1fr; gap: 2.5rem; }
+  .reja-ubicacion { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 760px) {
+  .menu-boton { display: flex; }
+  .nav {
+    position: absolute; top: 100%; left: 0; right: 0;
+    flex-direction: column; align-items: stretch; gap: .25rem;
+    padding: 1rem 1.5rem 1.75rem;
+    background: var(--crema-alta); border-bottom: 1px solid var(--linea);
+    display: none;
+  }
+  .nav.is-abierto { display: flex; }
+  .nav a { padding: .7rem 0; font-size: 1rem; }
+  .nav__cta { margin-top: .6rem; padding: .9rem; }
+  .lugar__reja { grid-template-columns: 1fr; }
+  .cal-caja { padding: .25rem; }
+  /* En móvil Cal.com usa su layout de columna: menos alto fijo */
+  .cal-embed, .cal-embed iframe { min-height: 620px; }
+  .flotante { right: 1rem; bottom: 1rem; padding: .8rem 1.1rem; }
+  .flotante span { display: none; }   /* solo el icono en pantallas chicas */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, .revelar { transition-duration: .01ms !important; }
+  .revelar { opacity: 1; transform: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ Encabezado ══ -->
+<header class="cabecera" id="cabecera">
+  <div class="contenedor cabecera__fila">
+    <a href="#inicio" class="marca">
+      <img src="img/logo.png" alt="" class="marca__logo" width="42" height="42" data-img-opcional>
+      <span>
+        <span class="marca__nombre" data-campo="nombre">Dreamy Spa</span>
+        <span class="marca__rubro">Beauty &amp; Wellness</span>
+      </span>
+    </a>
+
+    <nav class="nav" id="nav" aria-label="Navegación principal">
+      <a href="#servicios">Servicios</a>
+      <a href="#lugar">El lugar</a>
+      <a href="#opiniones">Opiniones</a>
+      <a href="#ubicacion">Ubicación</a>
+      <a href="#agendar" class="boton boton--principal nav__cta">Agendar cita</a>
+    </nav>
+
+    <button class="menu-boton" id="menuBoton" aria-label="Abrir menú" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<main id="inicio">
+
+  <!-- ══ 1 · Portada ══ -->
+  <section class="portada">
+    <div class="contenedor portada__reja">
+
+      <div>
+        <p class="puntaje">
+          <span class="puntaje__estrellas" aria-hidden="true">★★★★★</span>
+          5.0 en Google · 13 reseñas
+        </p>
+
+        <h1 class="titular">
+          Tu cuerpo también<br>necesita <strong>bajar el ritmo.</strong>
+        </h1>
+
+        <p class="entrada" data-campo="descripcion"></p>
+
+        <div class="portada__acciones">
+          <a href="#agendar" class="boton boton--principal">Agendar mi cita</a>
+          <a href="#" class="boton-icono" data-tel-link id="telHero" aria-label="Llamar a Dreamy Spa">
+            <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .3 1.9.6 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.1a2 2 0 0 1 2.1-.5c.9.3 1.8.5 2.8.6a2 2 0 0 1 1.7 2Z"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Foto de recepción. Si falta el archivo, queda el degradado olivo. -->
+      <figure class="arco">
+        <img src="img/recepcion.jpg" alt="Recepción de Dreamy Spa" width="340" height="510" fetchpriority="high" decoding="async" data-img-opcional>
+      </figure>
+
+    </div>
+  </section>
+
+  <!-- ══ 2 · Servicios ══ -->
+  <section class="seccion" id="servicios">
+    <div class="contenedor">
+      <div class="encabezado revelar">
+        <p class="etiqueta">Servicios</p>
+        <h2 class="titulo">Lo que puedes reservar</h2>
+        <p class="bajada">Cada servicio se da en cabina cerrada, con ropa de cama nueva y el tiempo completo que aparta tu cita.</p>
+      </div>
+
+      <div class="lista-servicios revelar" id="listaServicios"></div>
+
+      <p class="nota-precios">
+        Precios en pesos mexicanos. ¿Quieres armar un paquete distinto? <a href="#" data-wa-link>Escríbenos</a>.
+      </p>
+    </div>
+  </section>
+
+  <!-- ══ 3 · El lugar ══ -->
+  <section class="seccion" id="lugar">
+    <div class="contenedor">
+      <div class="encabezado revelar">
+        <p class="etiqueta">El lugar</p>
+        <h2 class="titulo">Un espacio creado para consentirte</h2>
+      </div>
+
+      <div class="lugar__reja revelar">
+        <figure class="arco">
+          <img src="img/cabina.jpg" alt="Cabina privada con camilla y equipo" width="382" height="510" loading="lazy" decoding="async" data-img-opcional>
+        </figure>
+        <figure class="arco">
+          <img src="img/estacion.jpg" alt="Estación de café y agua" width="382" height="510" loading="lazy" decoding="async" data-img-opcional>
+        </figure>
+      </div>
+
+      <div class="lugar__texto revelar" id="lugarPuntos"></div>
+    </div>
+  </section>
+
+  <!-- ══ 4 · Opiniones ══ -->
+  <section class="seccion" id="opiniones">
+    <div class="contenedor">
+      <div class="encabezado revelar">
+        <p class="etiqueta">Opiniones</p>
+        <h2 class="titulo">Lo que dicen quienes ya vinieron</h2>
+      </div>
+      <div class="reja-opiniones revelar" id="rejaOpiniones"></div>
+    </div>
+  </section>
+
+  <!-- ══ 5 · Agendar ══ -->
+  <section class="seccion" id="agendar">
+    <div class="contenedor--medio">
+      <div class="encabezado encabezado--centro revelar">
+        <p class="etiqueta">Reserva</p>
+        <h2 class="titulo">Aparta tu espacio</h2>
+        <p class="bajada">Elige el día y la hora que te acomode. La confirmación te llega por correo.</p>
+      </div>
+
+      <div class="agenda-marco">
+        <div class="cal-caja">
+          <div id="cal-embed" class="cal-embed"></div>
+
+          <!-- Se muestra solo si el embed no carga -->
+          <div class="cal-respaldo" id="calRespaldo" hidden>
+            <p>No pudimos cargar el calendario en este momento.</p>
+            <a href="#" class="boton boton--principal" data-wa-link>Agendar por WhatsApp</a>
+          </div>
+        </div>
+      </div>
+
+      <p class="agenda-nota">¿Dudas antes de reservar? <a href="#" data-wa-link>Escríbenos por WhatsApp</a></p>
+    </div>
+  </section>
+
+  <!-- ══ 6 · Preguntas ══ -->
+  <section class="seccion" id="preguntas">
+    <div class="contenedor--angosto revelar">
+      <div class="encabezado">
+        <p class="etiqueta">Preguntas frecuentes</p>
+        <h2 class="titulo">Antes de tu cita</h2>
+      </div>
+      <div class="acordeon" id="acordeon"></div>
+    </div>
+  </section>
+
+  <!-- ══ 7 · Ubicación ══ -->
+  <section class="seccion" id="ubicacion">
+    <div class="contenedor">
+      <div class="encabezado revelar">
+        <p class="etiqueta">Ubicación y horarios</p>
+        <h2 class="titulo">Dónde estamos</h2>
+      </div>
+
+      <div class="reja-ubicacion revelar">
+        <div>
+          <div class="dato">
+            <h3>Dirección</h3>
+            <p data-campo="direccion"></p>
+            <p style="margin-top:.6rem">
+              <a href="https://maps.app.goo.gl/6g1GprgEFJzRU3TTA" target="_blank" rel="noopener">Cómo llegar →</a>
+            </p>
+          </div>
+          <div class="dato">
+            <h3>Teléfono y WhatsApp</h3>
+            <p><a href="#" data-tel-link data-campo="telefono"></a></p>
+          </div>
+          <div class="dato">
+            <h3>Horarios</h3>
+            <table class="tabla-horarios" id="tablaHorarios"></table>
+          </div>
+        </div>
+        <div class="mapa">
+          <iframe id="mapa" title="Mapa de ubicación de Dreamy Spa" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ══ Cierre ══ -->
+<section class="cierre">
+  <div class="contenedor--angosto">
+    <h2>¿Nos vemos esta semana?</h2>
+    <p>Aparta tu espacio en menos de un minuto. Si prefieres preguntar primero, escríbenos.</p>
+    <div style="display:flex;gap:.9rem;flex-wrap:wrap;justify-content:center">
+      <a href="#agendar" class="boton boton--claro">Agendar mi cita</a>
+      <a href="#" class="boton boton--fantasma" data-wa-link>Escribir por WhatsApp</a>
+    </div>
+  </div>
+</section>
+
+<footer class="pie">
+  <div class="contenedor">
+    <div class="pie__fila">
+      <div>
+        <p class="pie__nombre" data-campo="nombre"></p>
+        <p class="pie__linea" data-campo="direccion"></p>
+      </div>
+      <div class="pie__enlaces">
+        <a href="#" id="pieInstagram" target="_blank" rel="noopener">Instagram</a>
+        <a href="https://maps.app.goo.gl/6g1GprgEFJzRU3TTA" target="_blank" rel="noopener">Google Maps</a>
+        <a href="#" data-wa-link>WhatsApp</a>
+        <a href="#agendar">Agendar</a>
+      </div>
+    </div>
+    <p class="pie__credito">
+      Sitio desarrollado por <a href="https://solvetech.mx" rel="noopener">SolveTech</a>
+    </p>
+  </div>
+</footer>
+
+<!-- WhatsApp flotante, en los colores del sitio -->
+<a href="#" class="flotante" data-wa-link aria-label="Escribir por WhatsApp">
+  <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M3 20.5 4.4 16A8.4 8.4 0 1 1 8 19.6l-5 .9Z"/>
+    <path d="M9 9.2c0 3 2.4 5.4 5.3 5.4a2 2 0 0 0 .8-3.7l-1 .8a4.6 4.6 0 0 1-2.3-2.3l.8-1A2 2 0 0 0 9 9.2Z"/>
+  </svg>
+  <span>WhatsApp</span>
+</a>
+
+<script>
+/* ============================================================
+   CONFIG — Lo ÚNICO que se edita para este cliente.
+   ============================================================ */
+
+const CONFIG = {
+
+  negocio: {
+    nombre: "Dreamy Spa",
+    descripcion:
+      "Spa en Playas de Tijuana con cabinas privadas, jacuzzi y experiencias para dos. Masaje, hidrofacial o ritual completo, atendido por terapeutas que te explican todo antes de empezar.",
+    telefono: "663 106 2597",
+    // Solo dígitos, con código de país. Sin +, sin espacios.
+    whatsapp: "526631062597",
+    direccion: "Centro Comercial Plaza Ensenada, P.º Ensenada 1193, Jardines Playas de Tijuana, 22500 Tijuana, B.C.",
+    mapaEmbed:
+      "https://www.google.com/maps?q=Dreamy+Spa+Paseo+Ensenada+1193+Playas+de+Tijuana&output=embed",
+    instagram: "https://www.instagram.com/dreamyspatj/",
+  },
+
+  /* --- CAL.COM --------------------------------------------- */
+  calcom: {
+    enlace: "angel-2q2ukt/consulta",
+    // "month_view" necesita ancho; por eso el calendario va en
+    // sección completa y no en una columna angosta.
+    vista: "month_view",
+    ocultarDetalles: false,
+  },
+
+  /* --- HORARIOS (alimenta la tabla del sitio) --------------- */
+  /* 0 = domingo, 1 = lunes ... 6 = sábado. null = cerrado.     */
+  agenda: {
+    horarios: {
+      0: { abre: "14:00", cierra: "21:00" },
+      1: { abre: "10:00", cierra: "19:00" },
+      2: { abre: "10:00", cierra: "19:00" },
+      3: { abre: "10:00", cierra: "19:00" },
+      4: { abre: "10:00", cierra: "19:00" },
+      5: { abre: "10:00", cierra: "19:00" },
+      6: { abre: "10:00", cierra: "21:00" },
+    },
+  },
+
+  /* --- SERVICIOS ------------------------------------------- */
+  /* Precios tomados de las publicaciones de Instagram.
+     Las duraciones con "≈" están estimadas: confírmalas.       */
+  servicios: [
+    {
+      tipo: "Masaje",
+      nombre: "Masaje relajante",
+      descripcion: "50 minutos de relajación profunda, ideales para reducir el estrés, liberar la tensión acumulada y recuperar esa sensación de ligereza.",
+      duracion: "50 min",
+      precio: "$835",
+    },
+    {
+      tipo: "Masaje",
+      nombre: "Masaje descontracturante",
+      descripcion: "Libera la tensión acumulada, relaja las zonas cargadas y te devuelve mayor ligereza y movilidad.",
+      duracion: "50 min",
+      precio: "$935",
+    },
+    {
+      tipo: "Masaje",
+      nombre: "Piedras calientes",
+      descripcion: "Combina calor y técnicas de masaje para una sensación envolvente de descanso que suelta el cuerpo y te desconecta de la rutina.",
+      duracion: "≈60 min",
+      precio: "$1,035",
+    },
+    {
+      tipo: "Facial",
+      nombre: "Hidrofacial",
+      descripcion: "Limpieza, exfoliación e hidratación profunda para mejorar la textura y devolverle al rostro una apariencia más fresca, suave y luminosa.",
+      duracion: "≈60 min",
+      precio: "$1,600",
+    },
+    {
+      tipo: "Experiencia",
+      nombre: "Masaje relajante + jacuzzi",
+      descripcion: "Para una persona. Un momento de calma, descanso y renovación en un espacio creado para consentirte.",
+      duracion: "≈80 min",
+      precio: "$1,135",
+    },
+    {
+      tipo: "Experiencia",
+      nombre: "Masaje relajante + facial hidratante",
+      descripcion: "Relajación profunda e hidratación facial en una sola visita. Sales renovada, ligera y con la piel más luminosa.",
+      duracion: "≈110 min",
+      precio: "$1,503",
+    },
+    {
+      tipo: "Para dos",
+      nombre: "Dreamy para dos",
+      descripcion: "Masaje relajante y jacuzzi para dos personas. Una pausa compartida que ambos van a agradecer.",
+      duracion: "≈80 min",
+      precio: "$1,960",
+    },
+  ],
+
+  /* Puntos que acompañan a las fotos del lugar */
+  puntos: [
+    {
+      titulo: "Cabina privada",
+      texto: "Espacio cerrado solo para ti o para ustedes dos. Nadie entra ni pasa mientras te atienden.",
+    },
+    {
+      titulo: "Terapeutas que te explican",
+      texto: "Antes de empezar te preguntan qué te duele y qué presión quieres. Nada de sorpresas sobre la camilla.",
+    },
+    {
+      titulo: "Limpieza que se nota",
+      texto: "Ropa de cama y toallas nuevas en cada servicio, y el área se sanitiza entre cita y cita.",
+    },
+  ],
+
+  /* Reseñas públicas de Google (5.0 · 13 reseñas) */
+  testimonios: [
+    {
+      texto: "Excelente servicio por parte de las chicas, un trato muy amable y profesional. El lugar muy limpio, cómodo y privado.",
+      autor: "Shantal",
+      detalle: "Reseña de Google",
+    },
+    {
+      texto: "Acudimos en pareja y quedamos muy satisfechos con todas sus atenciones. Regresaremos pronto.",
+      autor: "Karina",
+      detalle: "Dreamy para dos",
+    },
+    {
+      texto: "Jacuzzi muy relajante, masaje excelente y el facial me dejó la piel preciosa.",
+      autor: "Clienta de Google",
+      detalle: "Masaje + facial",
+    },
+  ],
+
+  faq: [
+    {
+      pregunta: "¿Necesito cita previa?",
+      respuesta: "Sí. Trabajamos con cabina privada, así que apartamos tu horario por completo. Puedes agendar desde esta página en menos de un minuto.",
+    },
+    {
+      pregunta: "¿Atienden a parejas al mismo tiempo?",
+      respuesta: "Sí. La experiencia Dreamy para dos incluye masaje relajante y jacuzzi para ambos. Reserva con un par de días de anticipación.",
+    },
+    {
+      pregunta: "¿Qué llevo o cómo me presento?",
+      respuesta: "Nada en especial. Nosotros te damos batita, toallas y sandalias. Llega 10 minutos antes para acomodarte sin prisa.",
+    },
+    {
+      pregunta: "¿Qué pasa si no puedo llegar?",
+      respuesta: "Avísanos por WhatsApp con al menos 2 horas de anticipación y reprogramamos tu cita sin costo.",
+    },
+  ],
+};
+</script>
+
+<script>
+/* ============================================================
+   APP — lógica de la plantilla. No requiere edición.
+   ============================================================ */
+
+(function () {
+  "use strict";
+
+  const $  = (s, c = document) => c.querySelector(s);
+  const $$ = (s, c = document) => [...c.querySelectorAll(s)];
+
+  const DIAS_LARGO = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+
+  const enlaceWA = (texto = "") =>
+    "https://wa.me/" + CONFIG.negocio.whatsapp +
+    (texto ? "?text=" + encodeURIComponent(texto) : "");
+
+  const aMinutos = (hhmm) => {
+    const [h, m] = hhmm.split(":").map(Number);
+    return h * 60 + m;
+  };
+
+  const aTexto12h = (min) => {
+    const h24 = Math.floor(min / 60);
+    const m = min % 60;
+    const sufijo = h24 >= 12 ? "pm" : "am";
+    const h12 = h24 % 12 === 0 ? 12 : h24 % 12;
+    return `${h12}:${String(m).padStart(2, "0")} ${sufijo}`;
+  };
+
+  function aplicarNegocio() {
+    const n = CONFIG.negocio;
+
+    $$("[data-campo]").forEach((el) => {
+      const clave = el.dataset.campo;
+      if (n[clave]) el.textContent = n[clave];
+    });
+
+    $$("[data-wa-link]").forEach((el) => {
+      el.href = enlaceWA(`Hola, quiero agendar una cita en ${n.nombre}.`);
+      el.target = "_blank";
+      el.rel = "noopener";
+    });
+
+    $$("[data-tel-link]").forEach((el) => { el.href = "tel:+" + n.whatsapp; });
+
+    // El botón de teléfono del hero no muestra el número, pero sí lo anuncia
+    const tel = $("#telHero");
+    if (tel) tel.setAttribute("aria-label", `Llamar a ${n.nombre}: ${n.telefono}`);
+
+    if ($("#mapa")) $("#mapa").src = n.mapaEmbed;
+    if ($("#pieInstagram")) $("#pieInstagram").href = n.instagram;
+
+    // Si una foto de img/ no existe, se oculta y queda el fondo olivo.
+    $$("[data-img-opcional]").forEach((img) => {
+      img.addEventListener("error", () => { img.style.display = "none"; });
+    });
+  }
+
+  function pintarServicios() {
+    $("#listaServicios").innerHTML = CONFIG.servicios.map((s) => `
+      <article class="servicio">
+        <div>
+          <h3 class="servicio__nombre">${s.nombre}</h3>
+          <span class="servicio__tipo">${s.tipo}</span>
+        </div>
+        <p class="servicio__texto">${s.descripcion}</p>
+        <div class="servicio__cifras">
+          <span class="servicio__precio">${s.precio}</span>
+          <span class="servicio__duracion">${s.duracion}</span>
+        </div>
+      </article>`).join("");
+  }
+
+  function pintarPuntos() {
+    $("#lugarPuntos").innerHTML = CONFIG.puntos.map((p) => `
+      <article class="punto">
+        <h3>${p.titulo}</h3>
+        <p>${p.texto}</p>
+      </article>`).join("");
+  }
+
+  function pintarOpiniones() {
+    $("#rejaOpiniones").innerHTML = CONFIG.testimonios.map((t) => `
+      <blockquote class="opinion">
+        <p>“${t.texto}”</p>
+        <p class="opinion__autor"><strong>${t.autor}</strong>${t.detalle}</p>
+      </blockquote>`).join("");
+  }
+
+  function pintarFaq() {
+    $("#acordeon").innerHTML = CONFIG.faq.map((f) => `
+      <details>
+        <summary>${f.pregunta}</summary>
+        <p>${f.respuesta}</p>
+      </details>`).join("");
+  }
+
+  function pintarHorarios() {
+    const orden = [1, 2, 3, 4, 5, 6, 0];
+    const hoy = new Date().getDay();
+    $("#tablaHorarios").innerHTML = orden.map((d) => {
+      const h = CONFIG.agenda.horarios[d];
+      const valor = h
+        ? `${aTexto12h(aMinutos(h.abre))} – ${aTexto12h(aMinutos(h.cierra))}`
+        : "Cerrado";
+      const clase = d === hoy ? ' class="is-hoy"' : "";
+      return `<tr${clase}><td>${DIAS_LARGO[d]}</td><td>${valor}</td></tr>`;
+    }).join("");
+  }
+
+  /* ── Cal.com ─────────────────────────────────────────────── */
+
+  function cargarCal() {
+    const cfg = CONFIG.calcom;
+    const caja = document.getElementById("cal-embed");
+    if (!caja || !cfg || !cfg.enlace) return;
+
+    (function (C, A, L) {
+      const p = (a, ar) => { a.q.push(ar); };
+      const d = C.document;
+      C.Cal = C.Cal || function () {
+        const cal = C.Cal, ar = arguments;
+        if (!cal.loaded) {
+          cal.ns = {}; cal.q = cal.q || [];
+          const sc = d.createElement("script");
+          sc.src = A;
+          sc.onerror = mostrarRespaldo;
+          d.head.appendChild(sc);
+          cal.loaded = true;
+        }
+        if (ar[0] === L) {
+          const api = function () { p(api, arguments); };
+          const ns = ar[1];
+          api.q = api.q || [];
+          if (typeof ns === "string") {
+            cal.ns[ns] = cal.ns[ns] || api;
+            p(cal.ns[ns], ar); p(cal, ["initNamespace", ns]);
+          } else { p(cal, ar); }
+          return;
+        }
+        p(cal, ar);
+      };
+    })(window, "https://app.cal.com/embed/embed.js", "init");
+
+    Cal("init", { origin: "https://cal.com" });
+
+    // En pantallas angostas el mes no cabe: usamos la vista de columna,
+    // que es la que Cal.com diseñó para móvil.
+    const anchoOk = window.matchMedia("(min-width: 900px)").matches;
+    const vista = anchoOk ? (cfg.vista || "month_view") : "column_view";
+
+    Cal("inline", {
+      elementOrSelector: "#cal-embed",
+      calLink: cfg.enlace,
+      layout: vista,
+      config: { theme: "light", layout: vista },
+    });
+
+    const css = getComputedStyle(document.documentElement);
+    Cal("ui", {
+      theme: "light",
+      hideEventTypeDetails: !!cfg.ocultarDetalles,
+      cssVarsPerTheme: {
+        light: {
+          "cal-brand": css.getPropertyValue("--olivo-hondo").trim(),
+          "cal-bg": css.getPropertyValue("--crema-alta").trim(),
+        },
+      },
+    });
+
+    setTimeout(() => {
+      if (!caja.querySelector("iframe")) mostrarRespaldo();
+    }, 12000);
+  }
+
+  function mostrarRespaldo() {
+    const caja = document.getElementById("cal-embed");
+    const resp = document.getElementById("calRespaldo");
+    if (!resp || !resp.hidden) return;
+    if (caja) caja.hidden = true;
+    resp.hidden = false;
+  }
+
+  /* ── Aparición al hacer scroll ───────────────────────────── */
+
+  function activarRevelado() {
+    const objetivos = $$(".revelar");
+    if (!("IntersectionObserver" in window)) {
+      objetivos.forEach((el) => el.classList.add("is-visible"));
+      return;
+    }
+    const obs = new IntersectionObserver((entradas) => {
+      entradas.forEach((e) => {
+        if (e.isIntersecting) { e.target.classList.add("is-visible"); obs.unobserve(e.target); }
+      });
+    }, { rootMargin: "0px 0px -8% 0px", threshold: .08 });
+    objetivos.forEach((el) => obs.observe(el));
+  }
+
+  /* ── Arranque ────────────────────────────────────────────── */
+
+  function iniciar() {
+    aplicarNegocio();
+    pintarServicios();
+    pintarPuntos();
+    pintarOpiniones();
+    pintarFaq();
+    pintarHorarios();
+    cargarCal();
+    activarRevelado();
+
+    const menuBoton = $("#menuBoton");
+    menuBoton.addEventListener("click", () => {
+      const abierto = $("#nav").classList.toggle("is-abierto");
+      menuBoton.setAttribute("aria-expanded", String(abierto));
+    });
+    $$("#nav a").forEach((a) =>
+      a.addEventListener("click", () => {
+        $("#nav").classList.remove("is-abierto");
+        menuBoton.setAttribute("aria-expanded", "false");
+      })
+    );
+
+    const cabecera = $("#cabecera");
+    const alScroll = () => cabecera.classList.toggle("is-fija", scrollY > 12);
+    addEventListener("scroll", alScroll, { passive: true });
+    alScroll();
+  }
+
+  document.addEventListener("DOMContentLoaded", iniciar);
+})();
+</script>
+</body>
+</html>
