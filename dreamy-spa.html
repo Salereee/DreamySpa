@@ -1,0 +1,1500 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dreamy Spa — Masajes y faciales en Playas de Tijuana</title>
+<meta name="description" content="Spa en Playas de Tijuana. Masaje relajante, descontracturante, piedras calientes, hidrofacial y jacuzzi en cabina privada. Aparta tu cita en línea en menos de un minuto.">
+
+<link rel="icon" href="img/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<!-- GSAP + ScrollTrigger para las animaciones de scroll -->
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script>
+  /* Solo escondemos el contenido si GSAP cargó de verdad.
+     Si el CDN falla, la página se ve completa desde el inicio.
+     Con "prefers-reduced-motion" sí animamos, pero solo opacidad:
+     movimiento reducido es menos movimiento, no cero transición. */
+  (function () {
+    window.__quieto = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (window.gsap && window.ScrollTrigger) {
+      document.documentElement.classList.add("con-gsap");
+    }
+  })();
+</script>
+<style>
+/* ============================================================
+   DREAMY SPA — sitio de una página con agendador Cal.com
+   Identidad: verde olivo + crema, tomada del logo y el banner.
+   Criterio de diseño: pocas cajas, líneas de un pelo, mucho aire.
+   ============================================================ */
+
+:root {
+  --crema:        #f2ede3;
+  --crema-alta:   #faf8f2;
+  --olivo:        #7a8a55;
+  --olivo-hondo:  #3f4d1c;
+  --olivo-claro:  #9aa878;
+  --tinta:        #23271b;
+  --tinta-suave:  #545a48;   /* 7.1:1 sobre la crema — antes era #6d7263 (4.9:1) */
+  --linea:        #d6d1bd;   /* hairline: casi todo el sitio se arma con esto */
+  --radio:        18px;      /* mismo radio que la base de los arcos */
+  --radio-grande: 24px;
+
+  /* Curvas de easing. Las nativas de CSS son demasiado suaves:
+     no tienen el arranque que hace que algo se sienta intencional.
+     ease-in nunca se usa en UI — retrasa justo el instante que el
+     ojo está mirando y se percibe más lento a igual duración. */
+  --salida:  cubic-bezier(0.23, 1, 0.32, 1);
+  --entrada-salida: cubic-bezier(0.77, 0, 0.175, 1);
+
+  /* Ritmo vertical: una sola escala para todo el sitio */
+  --aire-seccion: clamp(5rem, 11vw, 9.5rem);
+  --aire-titulo:  clamp(2.5rem, 5vw, 4rem);
+  --alto-cabecera: 76px;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; scroll-padding-top: 96px; }
+
+body {
+  margin: 0;
+  background: var(--crema);
+  color: var(--tinta);
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* El tracking es específico del tamaño, nunca un valor único.
+   Al crecer, las letras se leen demasiado separadas y hay que
+   cerrarlas; al achicarse, necesitan aire para seguir legibles.
+   El leading va al revés: apretado en display, suelto en texto. */
+h1, h2, h3 {
+  font-family: "Outfit", system-ui, sans-serif;
+  font-weight: 500;
+  margin: 0;
+  color: var(--olivo-hondo);
+  line-height: 1.2;
+  letter-spacing: -0.005em;   /* base: títulos chicos (h3) */
+  font-optical-sizing: auto;
+}
+
+/* Display: cuanto más grande, más cerrado */
+.titular { line-height: 1.05; letter-spacing: -0.032em; }
+.titulo  { line-height: 1.08; letter-spacing: -0.022em; }
+.cierre h2 { line-height: 1.08; letter-spacing: -0.024em; }
+
+/* Texto corrido: tracking neutro, leading cómodo */
+.entrada, .bajada, .servicio__texto, .punto p, .acordeon p {
+  letter-spacing: 0;
+}
+
+p { margin: 0 0 1rem; }
+
+/* Cortes de línea: `balance` reparte los títulos en renglones
+   parejos en vez de dejar una palabra suelta abajo; `pretty` evita
+   viudas en el texto corrido. Ninguno parte frases a la mitad. */
+h1, h2, h3, .titular, .titulo { text-wrap: balance; }
+p, li, figcaption, summary { text-wrap: pretty; }
+.entrada, .bajada { max-width: 46ch; }
+
+/* Cada palabra del título va en su propia caja para poder
+   escalonarlas. inline-block para que acepte transform; el
+   espacio entre palabras se conserva en el marcado. */
+.palabra { display: inline-block; will-change: transform; }
+a { color: inherit; }
+img, iframe { max-width: 100%; display: block; }
+
+.contenedor        { width: min(1280px, 100% - 3.5rem); margin-inline: auto; }
+.contenedor--medio { width: min(1120px, 100% - 3.5rem); margin-inline: auto; }
+.contenedor--angosto { width: min(780px, 100% - 3rem); margin-inline: auto; }
+
+/* ── Encabezados de sección ──────────────────────────────── */
+.seccion { padding: var(--aire-seccion) 0; }
+.seccion + .seccion { padding-top: 0; }   /* evita el doble colchón */
+
+.encabezado { margin-bottom: var(--aire-titulo); max-width: 46ch; }
+.encabezado--centro { margin-inline: auto; text-align: center; }
+
+.etiqueta {
+  font-size: .7rem; letter-spacing: .22em; text-transform: uppercase;
+  color: var(--olivo-hondo); font-weight: 600; margin: 0 0 1.1rem;
+}
+.titulo { font-size: clamp(2rem, 4.2vw, 3.1rem); }
+.titulo + .bajada { margin-top: 1.2rem; }
+.bajada { color: var(--tinta-suave); margin: 0; font-size: 1.03rem; }
+
+/* ── Botones ─────────────────────────────────────────────── */
+.boton {
+  display: inline-flex; align-items: center; justify-content: center; gap: .55rem;
+  padding: 1rem 2rem;
+  border: 1px solid transparent; border-radius: 999px;
+  font: inherit; font-weight: 500; font-size: .93rem;
+  text-decoration: none; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  /* Elimina la espera de ~300ms que el navegador se guarda por si
+     viene un segundo toque. Aquí no hay doble tap que reconocer. */
+  touch-action: manipulation;
+  /* Propiedades explícitas, nunca `all`: `all` acaba animando
+     cosas que disparan layout sin que te enteres. */
+  transition:
+    transform 160ms var(--salida),
+    background-color 200ms ease,
+    color 200ms ease,
+    border-color 200ms ease;
+}
+/* El press es lo que hace que un botón se sienta escuchado.
+   Va en todo lo que se pueda presionar, no solo en los botones. */
+.boton:active, .boton-icono:active, .flotante:active { transform: scale(.97); }
+
+.boton--principal { background: var(--olivo-hondo); color: var(--crema-alta); }
+.boton--fantasma { background: transparent; border-color: var(--olivo-claro); color: var(--olivo-hondo); }
+.boton--claro { background: var(--crema-alta); color: var(--olivo-hondo); }
+
+/* Botón circular: solo icono (el teléfono del hero) */
+.boton-icono {
+  width: 52px; height: 52px; flex: 0 0 auto;
+  display: grid; place-items: center;
+  border: 1px solid var(--olivo-claro); border-radius: 50%;
+  color: var(--olivo-hondo); text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition:
+    transform 160ms var(--salida),
+    background-color 200ms ease,
+    color 200ms ease,
+    border-color 200ms ease;
+}
+
+/* En táctil el :hover se dispara al tocar y queda pegado.
+   Todos los hover del sitio pasan por esta puerta. */
+@media (hover: hover) and (pointer: fine) {
+  .boton--principal:hover { background: var(--olivo); }
+  .boton--fantasma:hover { background: var(--olivo-hondo); border-color: var(--olivo-hondo); color: var(--crema-alta); }
+  .boton--claro:hover { background: #fff; }
+  .boton-icono:hover { background: var(--olivo-hondo); border-color: var(--olivo-hondo); color: var(--crema-alta); }
+}
+
+:focus-visible { outline: 2px solid var(--olivo); outline-offset: 3px; }
+
+/* ── Cabecera ────────────────────────────────────────────── */
+.cabecera { position: sticky; top: 0; z-index: 50; transition: background-color 300ms ease; }
+.cabecera.is-fija {
+  background: var(--crema);
+  box-shadow: 0 1px 0 var(--linea);
+}
+
+
+.cabecera__fila { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1.1rem 0; }
+
+.marca { text-decoration: none; display: flex; align-items: center; gap: .8rem; }
+.marca__logo { width: 42px; height: 42px; flex: 0 0 auto; border-radius: 11px; object-fit: cover; background: var(--olivo); }
+.marca__nombre {
+  display: block; font-family: "Outfit", sans-serif; font-weight: 400;
+  font-size: 1.12rem; color: var(--olivo-hondo); letter-spacing: .01em;
+}
+.marca__rubro { display: block; font-size: .62rem; letter-spacing: .2em; text-transform: uppercase; color: var(--tinta-suave); }
+
+.nav { display: flex; align-items: center; gap: 2.1rem; }
+.nav a { text-decoration: none; font-size: .9rem; color: var(--tinta-suave); position: relative; }
+/* El subrayado se anima con scaleX, no con `right`: `right` obliga
+   al navegador a recalcular layout en cada cuadro; transform no. */
+.nav a:not(.nav__cta)::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: -4px;
+  height: 1px; background: var(--olivo);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 200ms var(--salida);
+}
+@media (hover: hover) and (pointer: fine) {
+  .nav a:not(.nav__cta):hover { color: var(--olivo-hondo); }
+  .nav a:not(.nav__cta):hover::after { transform: scaleX(1); }
+}
+.nav__cta { color: var(--crema-alta) !important; padding: .7rem 1.4rem; font-size: .87rem; }
+
+.menu-boton {
+  display: none; flex-direction: column; gap: 5px;
+  background: none; border: 0; padding: .5rem; cursor: pointer;
+  touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+  transition: transform 140ms var(--salida);
+}
+.menu-boton:active { transform: scale(.92); }
+.menu-boton span { width: 22px; height: 1.5px; background: var(--olivo-hondo); border-radius: 2px; transition: transform .22s ease, opacity .22s ease; }
+.menu-boton[aria-expanded="true"] span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+.menu-boton[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+.menu-boton[aria-expanded="true"] span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+/* ── Portada ─────────────────────────────────────────────── */
+/* Ocupa la pantalla completa menos la cabecera y se centra ahí.
+   svh (small viewport height) evita el salto por la barra del
+   navegador en iOS/Android, donde 100vh se pasa de largo. */
+.portada {
+  min-height: calc(100svh - var(--alto-cabecera));
+  display: flex; align-items: center;
+  padding: clamp(2rem, 5vw, 3.5rem) 0 clamp(3rem, 6vw, 5rem);
+}
+.portada__reja {
+  /* Ojo: ni width ni flex-grow aquí. Cualquiera de los dos estira
+     la reja y anula el ancho de .contenedor (misma especificidad,
+     y .contenedor viene antes en la hoja). El centrado lo hace el
+     margin-inline:auto que ya trae .contenedor. */
+  flex: 0 1 auto;
+  display: grid; grid-template-columns: 1fr .8fr;
+  gap: clamp(2.5rem, 6vw, 6rem); align-items: center;
+}
+
+
+.titular { font-size: clamp(2.6rem, 5.6vw, 4.3rem); font-weight: 400; margin-bottom: 1.6rem; }
+.titular strong { font-weight: 600; }
+.entrada { font-size: 1.1rem; color: var(--tinta-suave); max-width: 46ch; margin-bottom: 2.6rem; }
+
+.portada__acciones { display: flex; flex-wrap: wrap; gap: .9rem; align-items: center; }
+
+/* Marco en arco: el mismo motivo que tienen en recepción.
+   Se usa una sola vez por foto, sin repetir imágenes. */
+.arco {
+  position: relative; margin: 0;
+  aspect-ratio: 3 / 4;
+  border-radius: 999px 999px 18px 18px;
+  overflow: hidden;
+  background: linear-gradient(160deg, var(--olivo-claro), var(--olivo));
+}
+.arco img { width: 100%; height: 100%; object-fit: cover; }
+
+/* ── Servicios ───────────────────────────────────────────── */
+/* Tarjetas en grid. Dentro de cada una: nombre → línea punteada
+   → precio, para que la cifra siga ligada al servicio. */
+.lista-servicios {
+  display: grid;
+  /* min() evita que la columna de 330px desborde en pantallas
+     más angostas que eso. */
+  grid-template-columns: repeat(auto-fit, minmax(min(330px, 100%), 1fr));
+  gap: clamp(1rem, 2vw, 1.4rem);
+}
+
+.servicio {
+  display: flex; flex-direction: column;
+  padding: clamp(1.5rem, 2.5vw, 1.9rem);
+  background: var(--crema-alta);
+  border: 1px solid var(--linea);
+  border-radius: var(--radio-grande);
+  /* Un hover se ve decenas de veces por sesión: corto y discreto.
+     350ms aquí se sentía como si la tarjeta costara trabajo. */
+  transition:
+    transform 180ms var(--salida),
+    box-shadow 180ms var(--salida),
+    border-color 180ms ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .servicio:hover {
+    transform: translateY(-2px);
+    border-color: var(--olivo-claro);
+    box-shadow: 0 2px 6px rgba(35,39,27,.03), 0 18px 36px -24px rgba(35,39,27,.26);
+  }
+}
+
+.servicio__fila { display: flex; align-items: baseline; gap: .8rem; }
+
+.servicio__nombre { font-size: 1.25rem; font-weight: 500; }
+
+/* La línea punteada que conecta el nombre con el precio */
+.servicio__guia {
+  flex: 1 1 auto; min-width: 1.5rem;
+  border-bottom: 1px dotted var(--linea);
+  transform: translateY(-.32em);
+}
+
+.servicio__precio {
+  font-family: "Outfit", sans-serif; font-size: 1.35rem; font-weight: 600;
+  color: var(--olivo-hondo); white-space: nowrap;
+}
+.servicio__moneda {
+  font-size: .7rem; font-weight: 500; letter-spacing: .08em;
+  color: var(--tinta-suave);
+}
+
+.servicio__meta {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: .5rem .8rem;
+  margin-top: .45rem;
+}
+.servicio__tipo {
+  font-size: .66rem; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--olivo-hondo); font-weight: 600;
+}
+.servicio__tipo::after { content: "·"; margin-left: .8rem; color: var(--linea); }
+.servicio__duracion { font-size: .84rem; color: var(--tinta-suave); }
+
+.servicio__texto {
+  color: var(--tinta-suave); font-size: .95rem; margin: .75rem 0 0; flex: 1;
+}
+
+.servicio[hidden] { display: none; }
+.ver-mas { display: flex; justify-content: center; margin-top: 1.75rem; }
+.ver-mas[hidden] { display: none; }
+
+
+/* ── El lugar ────────────────────────────────────────────── */
+/* Dos formas distintas y desfasadas. El arco se queda como firma
+   del hero; repetirlo tres veces lo convertía en un patrón. */
+.lugar__reja {
+  display: grid; grid-template-columns: 1.15fr .85fr;
+  gap: clamp(1.5rem, 3vw, 2.5rem);
+  align-items: start;
+}
+.lugar__foto { position: relative; margin: 0; overflow: hidden; background: linear-gradient(160deg, var(--olivo-claro), var(--olivo)); }
+.lugar__foto img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Panorámica ancha, esquinas apenas marcadas */
+.lugar__foto--ancha { aspect-ratio: 5 / 4; border-radius: var(--radio-grande); }
+
+/* Cápsula vertical, bajada para romper la línea del renglón */
+.lugar__foto--alta {
+  aspect-ratio: 3 / 4;
+  border-radius: 999px;      /* extremos semicirculares */
+  margin-top: clamp(2rem, 6vw, 4.5rem);
+}
+.lugar__texto { margin-top: clamp(3rem, 6vw, 4.5rem); display: grid; grid-template-columns: repeat(3, 1fr); gap: 2.5rem; }
+.punto h3 { font-size: 1.12rem; margin-bottom: .7rem; font-weight: 400; }
+.punto p { font-size: .95rem; color: var(--tinta-suave); margin: 0; }
+
+/* ── Agendador ───────────────────────────────────────────── */
+/* Ancho completo a propósito: con menos de ~900 px Cal.com
+   apila el mes y las horas en vertical. */
+.agenda-marco {
+  border: 1px solid var(--linea);
+  border-radius: var(--radio-grande);
+  background: var(--crema-alta);
+  overflow: hidden;
+  /* Sombra difusa en dos capas: apoya la tarjeta sobre la crema
+     sin marcar un borde duro. */
+  box-shadow:
+    0 2px 6px rgba(35, 39, 27, .03),
+    0 24px 60px -28px rgba(35, 39, 27, .22);
+}
+.cal-caja { padding: clamp(.75rem, 1.5vw, 1.1rem); }
+/* Cal.com mide su contenido y le escribe la altura al iframe por
+   JS: con muchos espacios disponibles llegaba a 1800px y la sección
+   ocupaba el doble de la pantalla. Le ponemos un techo y dejamos que
+   la lista de horarios haga scroll dentro del iframe.
+   El !important es necesario: gana al style inline del resizer. */
+.cal-embed {
+  width: 100%;
+  height: clamp(480px, 72svh, 660px);
+  border-radius: var(--radio);
+  overflow: hidden;
+}
+.cal-embed iframe {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  border: 0;
+}
+
+.cal-respaldo { padding: 3.5rem 1.5rem; text-align: center; }
+.cal-respaldo p { color: var(--tinta-suave); }
+
+.agenda-nota { text-align: center; font-size: .87rem; color: var(--tinta-suave); margin: 1.5rem 0 0; }
+.agenda-nota a { color: var(--olivo-hondo); }
+
+/* ── Acordeón ────────────────────────────────────────────── */
+.acordeon { border-top: 1px solid var(--linea); }
+.acordeon details { border-bottom: 1px solid var(--linea); }
+.acordeon summary {
+  padding: 1.4rem 0; cursor: pointer; font-size: 1.08rem;
+  font-family: "Outfit", sans-serif; font-weight: 400; color: var(--olivo-hondo);
+  list-style: none; display: flex; justify-content: space-between; gap: 1.5rem;
+  touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+  transition: color 160ms ease;
+}
+.acordeon summary:active { color: var(--olivo); }
+.acordeon summary::-webkit-details-marker { display: none; }
+.acordeon summary::after { content: "+"; color: var(--olivo); font-size: 1.3rem; line-height: 1.2; font-weight: 300; }
+.acordeon details[open] summary::after { content: "–"; }
+.acordeon p { font-size: .96rem; color: var(--tinta-suave); padding-bottom: 1.4rem; margin: 0; max-width: 62ch; }
+
+/* ── Ubicación ───────────────────────────────────────────── */
+.reja-ubicacion { display: grid; gap: clamp(2.5rem, 5vw, 4rem); grid-template-columns: minmax(240px, 320px) 1fr; align-items: start; }
+.dato { margin-bottom: 2rem; }
+.dato h3 {
+  font-family: "Inter", sans-serif; font-weight: 500;
+  font-size: .68rem; letter-spacing: .2em; text-transform: uppercase;
+  color: var(--tinta-suave); margin-bottom: .6rem;
+}
+.dato p { margin: 0; font-size: .99rem; }
+.dato a { color: var(--olivo-hondo); }
+
+.tabla-horarios { width: 100%; border-collapse: collapse; font-size: .93rem; }
+.tabla-horarios td { padding: .45rem 0; border-bottom: 1px solid var(--linea); }
+.tabla-horarios tr:last-child td { border-bottom: 0; }
+.tabla-horarios td:last-child { text-align: right; color: var(--tinta-suave); }
+.tabla-horarios tr.is-hoy td { color: var(--olivo-hondo); font-weight: 500; }
+
+.mapa iframe { width: 100%; height: 100%; min-height: 420px; border: 1px solid var(--linea); border-radius: var(--radio); filter: saturate(.78) contrast(.96); }
+
+/* ── Cierre ──────────────────────────────────────────────── */
+/* El bloque oscuro final: cierre + pie. Compacto a propósito,
+   no repite el aire de las secciones claras. */
+.cierre { margin-top: var(--aire-seccion); padding: clamp(3rem, 6vw, 4.5rem) 0 clamp(2.5rem, 5vw, 3.5rem); text-align: center; background: var(--olivo-hondo); color: var(--crema); }
+.cierre h2 { font-size: clamp(1.9rem, 4vw, 2.8rem); color: var(--crema-alta); font-weight: 500; margin-bottom: .9rem; }
+.cierre p { color: rgba(242,237,227,.8); max-width: 44ch; margin: 0 auto 2rem; }
+.cierre .boton--fantasma { border-color: rgba(242,237,227,.45); color: var(--crema-alta); }
+@media (hover: hover) and (pointer: fine) {
+  .red:hover { background: var(--crema); border-color: var(--crema); color: var(--olivo-hondo); }
+  .cierre .boton--fantasma:hover { background: var(--crema-alta); color: var(--olivo-hondo); border-color: var(--crema-alta); }
+}
+
+/* ── Pie ─────────────────────────────────────────────────── */
+.pie { background: var(--olivo-hondo); color: var(--crema); }
+.pie__fila {
+  display: flex; flex-wrap: wrap; gap: .75rem 2rem;
+  justify-content: space-between; align-items: baseline;
+  padding: 1.5rem 0;
+}
+/* Redes: mismo botón circular de línea que el teléfono del hero,
+   invertido para el fondo olivo. */
+.pie__redes { display: flex; gap: .6rem; }
+.red {
+  width: 40px; height: 40px;
+  display: grid; place-items: center;
+  border: 1px solid rgba(242,237,227,.28);
+  border-radius: 50%;
+  color: var(--crema);
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition:
+    transform 160ms var(--salida),
+    background-color 200ms ease,
+    border-color 200ms ease,
+    color 200ms ease;
+}
+.red:active { transform: scale(.94); }
+.pie__nombre { font-family: "Outfit", sans-serif; font-weight: 500; font-size: 1.05rem; margin: 0; color: var(--crema-alta); }
+
+/* ── WhatsApp flotante (en el color de la marca, no el verde de WA) ── */
+.flotante {
+  position: fixed; right: 1.5rem; bottom: 1.5rem; z-index: 55;
+  width: 54px; height: 54px;
+  display: grid; place-items: center;
+  background: var(--olivo-hondo); color: var(--crema-alta);
+  border-radius: 50%; text-decoration: none;
+  box-shadow: 0 12px 30px -12px rgba(43,47,34,.55);
+  -webkit-tap-highlight-color: transparent;
+  /* Entrada tranquila, salida rápida: el sistema responde más
+     rápido de lo que se anuncia. */
+  transition:
+    transform 260ms var(--salida),
+    opacity 260ms var(--salida),
+    background-color 200ms ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .flotante:hover { background: var(--olivo); }
+}
+
+/* Escondido mientras el hero está a la vista: ahí ya hay dos
+   llamadas a la acción y el botón solo estorbaría. */
+.flotante.is-oculto {
+  opacity: 0;
+  /* Nunca desde scale(0): nada en el mundo real aparece de la nada.
+     0.92 conserva la silueta y la entrada se lee como un acercamiento. */
+  transform: scale(.92) translateY(6px);
+  pointer-events: none;
+  transition-duration: 180ms;
+}
+
+/* ── Aparición al hacer scroll ───────────────────────────── */
+/* El estado oculto solo existe si GSAP cargó. Sin JS o sin CDN,
+   todo se ve desde el primer momento. */
+.con-gsap .revelar,
+.con-gsap .anim-titular > *,
+.con-gsap .servicio,
+.con-gsap .portada .arco { opacity: 0; }
+.con-gsap .arco img { will-change: transform; }
+
+/* ── Responsivo ──────────────────────────────────────────── */
+@media (max-width: 1000px) {
+  /* Hero apilado que igual cabe en una pantalla: el texto ocupa lo
+     que necesita y la foto se queda con el resto (fila 1fr). Así no
+     se corta ni empuja nada fuera del pliegue. */
+  .portada { display: block; padding: 1rem 0 1.5rem; }
+  .portada__reja {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(120px, 1fr);
+    gap: clamp(.75rem, 2.5vw, 1.5rem);
+    /* Tres escalones a propósito. Safari anterior a 15.4 no entiende
+       svh y descarta la declaración entera: sin el respaldo en vh, el
+       hero se quedaba sin altura y la foto salía a tamaño natural,
+       cortada por la pantalla. --vh lo calcula el JS y gana si existe. */
+    min-height: calc(100vh  - var(--alto-cabecera) - 2.5rem);
+    min-height: calc(100svh - var(--alto-cabecera) - 2.5rem);
+    min-height: calc((var(--vh, 1svh) * 100) - var(--alto-cabecera) - 2.5rem);
+    /* Sin max-height a propósito: si una medición sale mal, que el
+       hero crezca de más y no que se colapse a nada. */
+  }
+  .portada .arco {
+    aspect-ratio: auto;        /* la altura la manda la fila del grid */
+    height: 100%;
+    min-height: 0;
+    width: min(100%, 420px);
+    margin-inline: auto;
+    border-radius: 999px 999px 18px 18px;
+  }
+  /* Sacamos la imagen del flujo: si no, el renglón crece hasta el
+     alto natural del archivo (510px) y el hero se desborda. */
+  .portada .arco img { position: absolute; inset: 0; }
+  /* La foto es vertical: encuadre un poco arriba del centro para
+     que no se corte la parte alta de los arcos. */
+  .portada .arco img { object-position: center 38%; }
+
+  /* En una columna se acomodan centradas y sin el desfase */
+  .lugar__reja { grid-template-columns: 1fr; }
+  .lugar__foto { width: min(100%, 420px); margin-inline: auto; }
+  .lugar__foto--alta { margin-top: 0; }
+  .lugar__texto { grid-template-columns: 1fr; gap: 2rem; }
+  .reja-ubicacion { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 760px) {
+  .menu-boton { display: flex; }
+  /* El panel se queda en el DOM y cambia de estado con una
+     transición CSS. Depender del onComplete de GSAP para cerrarlo
+     es frágil: si la pestaña pierde foco, el rAF se pausa y el
+     menú se queda abierto. Esto siempre termina. */
+  .nav {
+    position: absolute; top: 100%; left: 0; right: 0;
+    display: flex; flex-direction: column; align-items: stretch; gap: .25rem;
+    padding: 1rem 1.5rem 1.75rem;
+    background: var(--crema-alta);
+    border-bottom: 1px solid var(--linea);
+    opacity: 0; visibility: hidden; pointer-events: none;
+    transform: translateY(-10px);
+    transition:
+      opacity 280ms var(--salida),
+      transform 300ms var(--salida),
+      visibility 0s linear 300ms;
+  }
+  .nav.is-abierto {
+    opacity: 1; visibility: visible; pointer-events: auto;
+    transform: none;
+    transition-delay: 0s;
+  }
+  .nav a { padding: .7rem 0; font-size: 1rem; }
+  .nav__cta { margin-top: .6rem; padding: .9rem; }
+  /* Hero centrado y compacto: el texto cede altura a la foto. */
+  .titular { font-size: clamp(1.9rem, 7.2vw, 2.4rem); margin-bottom: .9rem; }
+  .entrada { font-size: .98rem; margin-bottom: 1.5rem; }
+  .puntaje { margin-bottom: 1rem; font-size: .8rem; }
+  .portada__reja > div:first-child { text-align: center; }
+  .portada .puntaje, .portada__acciones { justify-content: center; }
+  .portada .entrada { margin-inline: auto; }
+  .pie__fila { flex-direction: column; text-align: center; justify-content: center; }
+      .cal-caja { padding: .5rem; }
+  /* En móvil Cal.com usa su layout de columna: menos alto fijo */
+  .cal-embed { height: clamp(460px, 78svh, 620px); }
+  .flotante { right: 1rem; bottom: 1rem; width: 50px; height: 50px; }
+}
+
+/* Más contraste: fondos sólidos y bordes definidos. */
+@media (prefers-contrast: more) {
+  :root {
+    --tinta-suave: #3f4433;
+    --linea: #b9b39c;
+  }
+  .cabecera.is-fija { border-bottom: 1px solid var(--olivo-hondo); }
+  .servicio, .agenda-marco { border-color: var(--olivo-hondo); }
+  .boton--fantasma { border-color: var(--olivo-hondo); }
+}
+
+/* Movimiento reducido: se van los desplazamientos y las escalas,
+   se quedan las transiciones de opacidad y color, que ayudan a
+   entender qué cambió. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .boton, .boton-icono, .flotante, .servicio, .nav a::after {
+    transition-property: opacity, background-color, color, border-color;
+  }
+  .boton:active, .boton-icono:active, .flotante:active,
+  .menu-boton:active, .servicio:hover { transform: none; }
+  .flotante.is-oculto { transform: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ Encabezado ══ -->
+<header class="cabecera" id="cabecera">
+  <div class="contenedor cabecera__fila">
+    <a href="#inicio" class="marca">
+      <img src="img/logo.png" alt="" class="marca__logo" width="42" height="42" data-img-opcional>
+      <span>
+        <span class="marca__nombre" data-campo="nombre">Dreamy Spa</span>
+        <span class="marca__rubro">Beauty &amp; Wellness</span>
+      </span>
+    </a>
+
+    <nav class="nav" id="nav" aria-label="Navegación principal">
+      <a href="#servicios">Servicios</a>
+      <a href="#lugar">El lugar</a>
+      <a href="#ubicacion">Ubicación</a>
+      <a href="#agendar" class="boton boton--principal nav__cta">Agendar cita</a>
+    </nav>
+
+    <button class="menu-boton" id="menuBoton" aria-label="Abrir menú" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<main id="inicio">
+
+  <!-- ══ 1 · Portada ══ -->
+  <section class="portada">
+    <div class="contenedor portada__reja">
+
+      <div class="anim-titular">
+        <h1 class="titular">
+          Tu cuerpo también necesita <strong>bajar el ritmo.</strong>
+        </h1>
+
+        <p class="entrada" data-campo="descripcion"></p>
+
+        <div class="portada__acciones">
+          <a href="#agendar" class="boton boton--principal">Agendar cita</a>
+          <a href="#" class="boton-icono" data-tel-link id="telHero" aria-label="Llamar a Dreamy Spa">
+            <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .3 1.9.6 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.1a2 2 0 0 1 2.1-.5c.9.3 1.8.5 2.8.6a2 2 0 0 1 1.7 2Z"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Foto de recepción. Si falta el archivo, queda el degradado olivo. -->
+      <figure class="arco">
+        <img src="img/recepcion.jpg" alt="Recepción de Dreamy Spa" width="340" height="510" fetchpriority="high" decoding="async" data-img-opcional>
+      </figure>
+
+    </div>
+  </section>
+
+  <!-- ══ 2 · Servicios ══ -->
+  <section class="seccion" id="servicios">
+    <div class="contenedor">
+      <div class="encabezado revelar">
+        <p class="etiqueta">Servicios</p>
+        <h2 class="titulo">Servicios y tarifas</h2>
+        <p class="bajada">Cada servicio se realiza en cabina privada, con ropa de cama limpia y la duración completa que indica tu reserva.</p>
+      </div>
+
+      <div class="lista-servicios" id="listaServicios"></div>
+
+      <div class="ver-mas">
+        <button type="button" class="boton boton--fantasma" id="verMas" aria-expanded="false" aria-controls="listaServicios">
+          Ver más
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══ 3 · El lugar ══ -->
+  <section class="seccion" id="lugar">
+    <div class="contenedor">
+      <div class="encabezado revelar">
+        <p class="etiqueta">El lugar</p>
+        <h2 class="titulo">Un espacio creado para consentirte</h2>
+        <p class="bajada">Recepción con área de espera, café y agua de cortesía, y cabinas privadas para cada servicio.</p>
+      </div>
+
+      <div class="lugar__reja">
+        <figure class="lugar__foto lugar__foto--ancha">
+          <img src="img/cabina.jpg" alt="Cabina privada con camilla y equipo" width="382" height="510" loading="lazy" decoding="async" data-img-opcional>
+        </figure>
+        <figure class="lugar__foto lugar__foto--alta">
+          <img src="img/estacion.jpg" alt="Estación de café y agua" width="382" height="510" loading="lazy" decoding="async" data-img-opcional>
+        </figure>
+      </div>
+
+      <div class="lugar__texto revelar" id="lugarPuntos"></div>
+    </div>
+  </section>
+
+  <!-- ══ 4 · Agendar ══ -->
+  <section class="seccion" id="agendar">
+    <div class="contenedor--medio">
+      <div class="encabezado encabezado--centro revelar">
+        <p class="etiqueta">Reserva</p>
+        <h2 class="titulo">Elige tu horario</h2>
+        <p class="bajada">Los horarios disponibles son los que aparecen en el calendario. La confirmación llega por correo.</p>
+      </div>
+
+      <div class="agenda-marco">
+        <div class="cal-caja">
+          <div id="cal-embed" class="cal-embed"></div>
+
+          <!-- Se muestra solo si el embed no carga -->
+          <div class="cal-respaldo" id="calRespaldo" hidden>
+            <p>No pudimos cargar el calendario en este momento.</p>
+            <a href="#" class="boton boton--principal" data-wa-link>Agendar por WhatsApp</a>
+          </div>
+        </div>
+      </div>
+
+      <p class="agenda-nota">¿Dudas antes de reservar? <a href="#" data-wa-link>Escríbenos por WhatsApp</a></p>
+    </div>
+  </section>
+
+  <!-- ══ 6 · Preguntas ══ -->
+  <section class="seccion" id="preguntas">
+    <div class="contenedor--angosto revelar">
+      <div class="encabezado">
+        <p class="etiqueta">Preguntas frecuentes</p>
+        <h2 class="titulo">Antes de tu cita</h2>
+      </div>
+      <div class="acordeon" id="acordeon"></div>
+    </div>
+  </section>
+
+  <!-- ══ 7 · Ubicación ══ -->
+  <section class="seccion" id="ubicacion">
+    <div class="contenedor">
+      <div class="encabezado revelar">
+        <p class="etiqueta">Ubicación y horarios</p>
+        <h2 class="titulo">Dónde estamos</h2>
+      </div>
+
+      <div class="reja-ubicacion revelar">
+        <div>
+          <div class="dato">
+            <h3>Dirección</h3>
+            <p data-campo="direccion"></p>
+            <p style="margin-top:.6rem">
+              <a href="https://maps.app.goo.gl/6g1GprgEFJzRU3TTA" target="_blank" rel="noopener">Cómo llegar →</a>
+            </p>
+          </div>
+          <div class="dato">
+            <h3>Horarios</h3>
+            <table class="tabla-horarios" id="tablaHorarios"></table>
+          </div>
+        </div>
+        <div class="mapa">
+          <iframe id="mapa" title="Mapa de ubicación de Dreamy Spa" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ══ Cierre ══ -->
+<section class="cierre">
+  <div class="contenedor--angosto">
+    <h2>Reserva tu próxima visita</h2>
+    <p>Aparta tu horario en línea. Si tienes alguna duda antes de reservar, escríbenos por WhatsApp.</p>
+    <div style="display:flex;gap:.9rem;flex-wrap:wrap;justify-content:center">
+      <a href="#agendar" class="boton boton--claro">Agendar cita</a>
+      <a href="#" class="boton boton--fantasma" data-wa-link>Escribir por WhatsApp</a>
+    </div>
+  </div>
+</section>
+
+<footer class="pie">
+  <div class="contenedor">
+    <div class="pie__fila">
+      <p class="pie__nombre" data-campo="nombre"></p>
+      <div class="pie__redes">
+        <a href="#" id="pieInstagram" target="_blank" rel="noopener" class="red" aria-label="Instagram de Dreamy Spa">
+          <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3.5" y="3.5" width="17" height="17" rx="5"/>
+            <circle cx="12" cy="12" r="3.9"/>
+            <circle cx="16.9" cy="7.1" r="1.1" fill="currentColor" stroke="none"/>
+          </svg>
+        </a>
+        <a href="#" id="pieFacebook" target="_blank" rel="noopener" class="red" aria-label="Facebook de Dreamy Spa">
+          <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3.5" y="3.5" width="17" height="17" rx="5"/>
+            <path d="M14.7 8.3h-1.2c-1 0-1.7.7-1.7 1.7v6.1"/>
+            <path d="M10.2 12.3h4.1"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- WhatsApp flotante, en los colores del sitio -->
+<a href="#" class="flotante" data-wa-link aria-label="Escribir por WhatsApp">
+  <svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M3 20.5 4.4 16A8.4 8.4 0 1 1 8 19.6l-5 .9Z"/>
+    <path d="M9 9.2c0 3 2.4 5.4 5.3 5.4a2 2 0 0 0 .8-3.7l-1 .8a4.6 4.6 0 0 1-2.3-2.3l.8-1A2 2 0 0 0 9 9.2Z"/>
+  </svg>
+</a>
+
+<script>
+/* ============================================================
+   CONFIG — Lo ÚNICO que se edita para este cliente.
+   ============================================================ */
+
+const CONFIG = {
+
+  negocio: {
+    nombre: "Dreamy Spa",
+    descripcion:
+      "Masajes, faciales y jacuzzi en cabina privada, en Playas de Tijuana. Reserva tu horario en línea y nosotras nos encargamos del resto.",
+    telefono: "663 106 2597",
+    // Solo dígitos, con código de país. Sin +, sin espacios.
+    whatsapp: "526631062597",
+    direccion: "Centro Comercial Plaza Ensenada, P.º Ensenada 1193, Jardines Playas de Tijuana, 22500 Tijuana, B.C.",
+    mapaEmbed:
+      "https://www.google.com/maps?q=Dreamy+Spa+Paseo+Ensenada+1193+Playas+de+Tijuana&output=embed",
+    instagram: "https://www.instagram.com/dreamyspatj/",
+    facebook: "https://web.facebook.com/p/Dreamy-Spa-61565900984776/",
+  },
+
+  /* --- CAL.COM --------------------------------------------- */
+  calcom: {
+    enlace: "angel-2q2ukt/consulta",
+    // "month_view" necesita ancho; por eso el calendario va en
+    // sección completa y no en una columna angosta.
+    vista: "month_view",
+    ocultarDetalles: true,
+  },
+
+  /* --- HORARIOS (alimenta la tabla del sitio) --------------- */
+  /* 0 = domingo, 1 = lunes ... 6 = sábado. null = cerrado.     */
+  agenda: {
+    horarios: {
+      0: { abre: "14:00", cierra: "21:00" },
+      1: { abre: "10:00", cierra: "19:00" },
+      2: { abre: "10:00", cierra: "19:00" },
+      3: { abre: "10:00", cierra: "19:00" },
+      4: { abre: "10:00", cierra: "19:00" },
+      5: { abre: "10:00", cierra: "19:00" },
+      6: { abre: "10:00", cierra: "21:00" },
+    },
+  },
+
+  /* --- SERVICIOS ------------------------------------------- */
+  /* Precios tomados de las publicaciones de Instagram.
+     Las duraciones con "≈" están estimadas: confírmalas.       */
+  servicios: [
+    {
+      tipo: "Masaje",
+      nombre: "Masaje relajante",
+      descripcion: "Masaje de cuerpo completo con presión suave y aceite tibio, orientado a reducir el estrés y la tensión acumulada.",
+      duracion: "50 min",
+      precio: "$835",
+    },
+    {
+      tipo: "Masaje",
+      nombre: "Masaje descontracturante",
+      descripcion: "Presión firme sobre espalda, cuello y hombros para liberar contracturas y recuperar movilidad.",
+      duracion: "50 min",
+      precio: "$935",
+    },
+    {
+      tipo: "Masaje",
+      nombre: "Piedras calientes",
+      descripcion: "Combina la aplicación de calor con técnicas de masaje para relajar la musculatura en profundidad.",
+      duracion: "≈60 min",
+      precio: "$1,035",
+    },
+    {
+      tipo: "Facial",
+      nombre: "Hidrofacial",
+      descripcion: "Limpieza, exfoliación e hidratación profunda que mejora la textura y la luminosidad del rostro.",
+      duracion: "≈60 min",
+      precio: "$1,600",
+    },
+    {
+      tipo: "Experiencia",
+      nombre: "Masaje relajante + jacuzzi",
+      descripcion: "Sesión de jacuzzi seguida de masaje relajante, para una persona.",
+      duracion: "≈80 min",
+      precio: "$1,135",
+    },
+    {
+      tipo: "Experiencia",
+      nombre: "Masaje + facial hidratante",
+      descripcion: "Masaje relajante y facial hidratante en una misma visita.",
+      duracion: "≈110 min",
+      precio: "$1,503",
+    },
+    {
+      tipo: "Para dos",
+      nombre: "Dreamy para dos",
+      descripcion: "Masaje relajante y jacuzzi para dos personas, en cabina privada.",
+      duracion: "≈80 min",
+      precio: "$1,960",
+    },
+  ],
+
+  /* Puntos que acompañan a las fotos del lugar */
+  puntos: [
+    {
+      titulo: "Cabina privada",
+      texto: "Cada servicio se realiza en una cabina cerrada, reservada únicamente para ti o para ustedes dos.",
+    },
+    {
+      titulo: "Valoración previa",
+      texto: "Antes de comenzar, la terapeuta consulta tus zonas de tensión y la presión que prefieres.",
+    },
+    {
+      titulo: "Higiene en cada cita",
+      texto: "Ropa de cama y toallas limpias en cada servicio, con sanitización del área entre una cita y la siguiente.",
+    },
+  ],
+
+  faq: [
+    {
+      pregunta: "¿Necesito cita previa?",
+      respuesta: "Sí. Cada servicio ocupa una cabina completa, por lo que reservamos ese horario de forma exclusiva. Puedes agendar desde esta misma página.",
+    },
+    {
+      pregunta: "¿Atienden a dos personas al mismo tiempo?",
+      respuesta: "Sí, con el servicio Dreamy para dos, que incluye masaje y jacuzzi para ambos. Recomendamos reservarlo con dos o tres días de anticipación.",
+    },
+    {
+      pregunta: "¿Qué debo llevar?",
+      respuesta: "Nada en particular. Proporcionamos bata, toallas y sandalias, y un lugar para guardar tus pertenencias. Te sugerimos llegar diez minutos antes.",
+    },
+    {
+      pregunta: "¿Puedo reprogramar mi cita?",
+      respuesta: "Sí. Avísanos por WhatsApp con al menos dos horas de anticipación y la reprogramamos sin costo.",
+    },
+    {
+      pregunta: "¿Cómo pago?",
+      respuesta: "El pago se realiza en el spa, con efectivo, tarjeta o transferencia. La reserva en línea no genera ningún cargo anticipado.",
+    },
+  ],
+};
+</script>
+
+<script>
+/* ============================================================
+   APP — lógica de la plantilla. No requiere edición.
+   ============================================================ */
+
+(function () {
+  "use strict";
+
+  const $  = (s, c = document) => c.querySelector(s);
+  const $$ = (s, c = document) => [...c.querySelectorAll(s)];
+
+  const DIAS_LARGO = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+
+  const enlaceWA = (texto = "") =>
+    "https://wa.me/" + CONFIG.negocio.whatsapp +
+    (texto ? "?text=" + encodeURIComponent(texto) : "");
+
+  const aMinutos = (hhmm) => {
+    const [h, m] = hhmm.split(":").map(Number);
+    return h * 60 + m;
+  };
+
+  const aTexto12h = (min) => {
+    const h24 = Math.floor(min / 60);
+    const m = min % 60;
+    const sufijo = h24 >= 12 ? "pm" : "am";
+    const h12 = h24 % 12 === 0 ? 12 : h24 % 12;
+    return `${h12}:${String(m).padStart(2, "0")} ${sufijo}`;
+  };
+
+  function aplicarNegocio() {
+    const n = CONFIG.negocio;
+
+    $$("[data-campo]").forEach((el) => {
+      const clave = el.dataset.campo;
+      if (n[clave]) el.textContent = n[clave];
+    });
+
+    $$("[data-wa-link]").forEach((el) => {
+      el.href = enlaceWA(`Hola, quiero agendar una cita en ${n.nombre}.`);
+      el.target = "_blank";
+      el.rel = "noopener";
+    });
+
+    $$("[data-tel-link]").forEach((el) => { el.href = "tel:+" + n.whatsapp; });
+
+    // El botón de teléfono del hero no muestra el número, pero sí lo anuncia
+    const tel = $("#telHero");
+    if (tel) tel.setAttribute("aria-label", `Llamar a ${n.nombre}: ${n.telefono}`);
+
+    if ($("#mapa")) $("#mapa").src = n.mapaEmbed;
+    if ($("#pieInstagram")) $("#pieInstagram").href = n.instagram;
+    if ($("#pieFacebook")) $("#pieFacebook").href = n.facebook;
+
+    // Si una foto de img/ no existe, se oculta y queda el fondo olivo.
+    $$("[data-img-opcional]").forEach((img) => {
+      img.addEventListener("error", () => { img.style.display = "none"; });
+    });
+  }
+
+  /* Cuántas tarjetas se ven antes de pedir "ver más" */
+  const SERVICIOS_VISIBLES = 3;
+
+  function pintarServicios() {
+    $("#listaServicios").innerHTML = CONFIG.servicios.map((s) => `
+      <article class="servicio">
+        <div class="servicio__fila">
+          <h3 class="servicio__nombre">${s.nombre}</h3>
+          <span class="servicio__guia" aria-hidden="true"></span>
+          <span class="servicio__precio">${s.precio} <span class="servicio__moneda">MXN</span></span>
+        </div>
+        <div class="servicio__meta">
+          <span class="servicio__tipo">${s.tipo}</span>
+          <span class="servicio__duracion">${s.duracion}</span>
+        </div>
+        <p class="servicio__texto">${s.descripcion}</p>
+      </article>`).join("");
+
+    prepararVerMas();
+  }
+
+  /* ── "Ver más": la lista arranca corta ───────────────────── */
+
+  function prepararVerMas() {
+    const tarjetas = $$(".servicio");
+    const boton = $("#verMas");
+    const caja = $(".ver-mas");
+    if (!boton) return;
+
+    const ocultas = tarjetas.slice(SERVICIOS_VISIBLES);
+
+    // Si no sobra nada que mostrar, el botón no tiene razón de existir
+    if (!ocultas.length) { caja.hidden = true; return; }
+
+    ocultas.forEach((t) => { t.hidden = true; });
+
+    boton.addEventListener("click", () => {
+      ocultas.forEach((t) => { t.hidden = false; });
+      boton.setAttribute("aria-expanded", "true");
+
+      // Entran escalonadas, igual que las primeras.
+      if (document.documentElement.classList.contains("con-gsap")) {
+        // El tween inicial de la sección puede seguir pendiente y
+        // dejar estas tarjetas clavadas en opacidad 0: lo cancelamos
+        // para estos elementos antes de animarlos de nuevo.
+        gsap.killTweensOf(ocultas);
+        // Solo opacidad: un desvanecido, sin desplazamiento.
+        gsap.fromTo(ocultas,
+          { opacity: 0 },
+          { opacity: 1, duration: .5, ease: SALIDA, stagger: .05, overwrite: "auto" }
+        );
+      }
+
+      if (document.documentElement.classList.contains("con-gsap")) {
+        gsap.to(caja, {
+          opacity: 0, duration: .25, ease: SALIDA,
+          onComplete: () => { caja.hidden = true; },
+        });
+      } else {
+        caja.hidden = true;
+      }
+      // El foco se va a la primera tarjeta nueva para que quien
+      // navega con teclado no lo pierda al desaparecer el botón.
+      ocultas[0].setAttribute("tabindex", "-1");
+      ocultas[0].focus({ preventScroll: true });
+    });
+  }
+
+  function pintarPuntos() {
+    $("#lugarPuntos").innerHTML = CONFIG.puntos.map((p) => `
+      <article class="punto">
+        <h3>${p.titulo}</h3>
+        <p>${p.texto}</p>
+      </article>`).join("");
+  }
+
+  function pintarFaq() {
+    $("#acordeon").innerHTML = CONFIG.faq.map((f) => `
+      <details>
+        <summary>${f.pregunta}</summary>
+        <p>${f.respuesta}</p>
+      </details>`).join("");
+  }
+
+  function pintarHorarios() {
+    const orden = [1, 2, 3, 4, 5, 6, 0];
+    const hoy = new Date().getDay();
+    $("#tablaHorarios").innerHTML = orden.map((d) => {
+      const h = CONFIG.agenda.horarios[d];
+      const valor = h
+        ? `${aTexto12h(aMinutos(h.abre))} – ${aTexto12h(aMinutos(h.cierra))}`
+        : "Cerrado";
+      const clase = d === hoy ? ' class="is-hoy"' : "";
+      return `<tr${clase}><td>${DIAS_LARGO[d]}</td><td>${valor}</td></tr>`;
+    }).join("");
+  }
+
+  /* ── Cal.com ─────────────────────────────────────────────── */
+
+  function cargarCal() {
+    const cfg = CONFIG.calcom;
+    const caja = document.getElementById("cal-embed");
+    if (!caja || !cfg || !cfg.enlace) return;
+
+    (function (C, A, L) {
+      const p = (a, ar) => { a.q.push(ar); };
+      const d = C.document;
+      C.Cal = C.Cal || function () {
+        const cal = C.Cal, ar = arguments;
+        if (!cal.loaded) {
+          cal.ns = {}; cal.q = cal.q || [];
+          const sc = d.createElement("script");
+          sc.src = A;
+          sc.onerror = mostrarRespaldo;
+          d.head.appendChild(sc);
+          cal.loaded = true;
+        }
+        if (ar[0] === L) {
+          const api = function () { p(api, arguments); };
+          const ns = ar[1];
+          api.q = api.q || [];
+          if (typeof ns === "string") {
+            cal.ns[ns] = cal.ns[ns] || api;
+            p(cal.ns[ns], ar); p(cal, ["initNamespace", ns]);
+          } else { p(cal, ar); }
+          return;
+        }
+        p(cal, ar);
+      };
+    })(window, "https://app.cal.com/embed/embed.js", "init");
+
+    Cal("init", { origin: "https://cal.com" });
+
+    // En pantallas angostas el mes no cabe: usamos la vista de columna,
+    // que es la que Cal.com diseñó para móvil.
+    const anchoOk = window.matchMedia("(min-width: 900px)").matches;
+    const vista = anchoOk ? (cfg.vista || "month_view") : "column_view";
+
+    Cal("inline", {
+      elementOrSelector: "#cal-embed",
+      calLink: cfg.enlace,
+      layout: vista,
+      config: { theme: "light", layout: vista },
+    });
+
+    const css = getComputedStyle(document.documentElement);
+    Cal("ui", {
+      theme: "light",
+      hideEventTypeDetails: !!cfg.ocultarDetalles,
+      cssVarsPerTheme: {
+        light: {
+          "cal-brand": css.getPropertyValue("--olivo-hondo").trim(),
+          "cal-bg": css.getPropertyValue("--crema-alta").trim(),
+        },
+      },
+    });
+
+    setTimeout(() => {
+      if (!caja.querySelector("iframe")) mostrarRespaldo();
+    }, 12000);
+  }
+
+  function mostrarRespaldo() {
+    const caja = document.getElementById("cal-embed");
+    const resp = document.getElementById("calRespaldo");
+    if (!resp || !resp.hidden) return;
+    if (caja) caja.hidden = true;
+    resp.hidden = false;
+  }
+
+  /* ── Animaciones de scroll (GSAP + ScrollTrigger) ────────── */
+  /* Criterio: recorridos cortos, salidas largas y una sola curva
+     de easing en todo el sitio. El movimiento acompaña, no anuncia. */
+
+  /* power3.out es la aproximación de GSAP a cubic-bezier(.23,1,.32,1),
+     la misma curva que usan las transiciones CSS del sitio. Una sola
+     curva en toda la página: la cohesión es la mitad del resultado. */
+  const SALIDA = "power3.out";
+
+  /* Parte un título en palabras envueltas en <span>. Solo se usa en
+     títulos de texto plano: si el elemento trae etiquetas dentro,
+     lo dejamos intacto para no romperlas. */
+  function dividirEnPalabras(el) {
+    if (el.children.length) return [];
+    const palabras = el.textContent.trim().split(/\s+/);
+    el.innerHTML = palabras
+      .map((w) => `<span class="palabra">${w}</span>`)
+      .join(" ");
+    return $$(".palabra", el);
+  }
+
+  function activarAnimaciones() {
+    const conGsap = document.documentElement.classList.contains("con-gsap");
+
+    // Sin GSAP (CDN caído) no hay nada que hacer: el CSS deja
+    // todo visible por defecto.
+    if (!conGsap) return;
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Con movimiento reducido anulamos los desplazamientos, no la
+    // aparición: el contenido sigue entrando, pero sin viajar.
+    const quieto = !!window.__quieto;
+    const px = (n) => (quieto ? 0 : n);
+
+    // Entrada del hero: escalonada, sin esperar al scroll
+    gsap.fromTo(".anim-titular > *",
+      { opacity: 0, y: px(14) },
+      { opacity: 1, y: 0, duration: .7, ease: SALIDA, stagger: .06, delay: .1 }
+    );
+
+    // La foto del hero entra con un acercamiento apenas perceptible
+    const arcoHero = $(".portada .arco");
+    if (arcoHero) {
+      gsap.fromTo(arcoHero,
+        { opacity: 0 },
+        { opacity: 1, duration: .8, ease: SALIDA, delay: .15 }
+      );
+      if (!quieto) {
+        gsap.fromTo(arcoHero.querySelector("img"),
+          { scale: 1.06 },
+          { scale: 1, duration: 1.1, ease: SALIDA, delay: .15 }
+        );
+      }
+    }
+
+    // Encabezados: la etiqueta entra, el título se arma palabra
+    // por palabra y la bajada cierra. Un solo gesto en tres tiempos.
+    $$(".encabezado.revelar").forEach((cab) => {
+      const etiqueta = $(".etiqueta", cab);
+      const titulo   = $(".titulo", cab);
+      const bajada   = $(".bajada", cab);
+      const palabras = titulo ? dividirEnPalabras(titulo) : [];
+
+      gsap.set(cab, { opacity: 1 });
+      cab.classList.remove("revelar");   // ya no lo toca el genérico
+
+      const tl = gsap.timeline({
+        scrollTrigger: { trigger: cab, start: "top 85%", once: true },
+      });
+      if (etiqueta) tl.fromTo(etiqueta,
+        { opacity: 0, y: px(10) },
+        { opacity: 1, y: 0, duration: .5, ease: SALIDA }, 0);
+      if (palabras.length) tl.fromTo(palabras,
+        { opacity: 0, y: px(20) },
+        { opacity: 1, y: 0, duration: .7, ease: SALIDA, stagger: .035 }, .06);
+      if (bajada) tl.fromTo(bajada,
+        { opacity: 0, y: px(10) },
+        { opacity: 1, y: 0, duration: .6, ease: SALIDA }, .22);
+    });
+
+    // Fotos del lugar: se descubren de abajo hacia arriba en vez
+    // de solo aparecer. El clip-path no toca layout.
+    $$(".lugar__foto").forEach((marco) => {
+      gsap.fromTo(marco,
+        { clipPath: "inset(0 0 100% 0)", opacity: 1 },
+        {
+          clipPath: "inset(0 0 0% 0)", duration: 1.1, ease: SALIDA,
+          scrollTrigger: { trigger: marco, start: "top 85%", once: true },
+        }
+      );
+    });
+
+    // Paralaje de la foto del hero, solo donde hay espacio para que
+    // se note sin descuadrar el encuadre.
+    if (!quieto) {
+      gsap.matchMedia().add("(min-width: 1000px)", () => {
+        const img = $(".portada .arco img");
+        if (!img) return;
+        gsap.to(img, {
+          yPercent: 7, scale: 1.06, ease: "none",
+          scrollTrigger: { trigger: ".portada", start: "top top", end: "bottom top", scrub: .8 },
+        });
+      });
+    }
+
+    // Bloques generales: aparecen una vez y se quedan
+    $$(".revelar").forEach((el) => {
+      gsap.fromTo(el,
+        { opacity: 0, y: px(16) },
+        {
+          opacity: 1, y: 0, duration: .65, ease: SALIDA,
+          scrollTrigger: { trigger: el, start: "top 88%", once: true },
+        }
+      );
+    });
+
+    // Servicios: cada tarjeta entra detrás de la anterior
+    gsap.fromTo(".servicio",
+      { opacity: 0, y: px(14) },
+      {
+        opacity: 1, y: 0, duration: .55, ease: SALIDA, stagger: .06,
+        scrollTrigger: { trigger: ".lista-servicios", start: "top 82%", once: true },
+      }
+    );
+
+    // Paralaje de las fotos del lugar: la imagen se mueve dentro
+    // del arco, más lento que la página.
+    if (!quieto) {
+      $$(".lugar__foto").forEach((marco) => {
+        const img = marco.querySelector("img");
+        if (!img) return;
+        gsap.fromTo(img,
+          { yPercent: -4, scale: 1.1 },
+          {
+            yPercent: 4, scale: 1.1, ease: "none",
+            scrollTrigger: { trigger: marco, start: "top bottom", end: "bottom top", scrub: 1 },
+          }
+        );
+      });
+    }
+
+    // Cal.com se monta tarde y cambia de alto: hay que recalcular
+    // las posiciones o los disparadores quedan corridos.
+    addEventListener("load", () => ScrollTrigger.refresh());
+    setTimeout(() => ScrollTrigger.refresh(), 2500);
+  }
+
+  /* ── Botón flotante: solo en la zona intermedia ─────────── */
+  /* Se esconde en el hero y en el cierre/pie, donde ya hay
+     botones de contacto a la vista y solo estorbaría. */
+
+  function controlarFlotante() {
+    const boton = $(".flotante");
+    const zonas = [$(".portada"), $(".cierre"), $(".pie")].filter(Boolean);
+    if (!boton || !zonas.length) return;
+
+    // Sin observador se queda visible: preferimos de más a que
+    // no aparezca nunca.
+    if (!("IntersectionObserver" in window)) return;
+    boton.classList.add("is-oculto");
+
+    const visto = new Map();
+    let respondio = false;
+
+    const obs = new IntersectionObserver(
+      (entradas) => {
+        respondio = true;
+        entradas.forEach((e) => visto.set(e.target, e.intersectionRatio));
+        const enZonaMuerta = [...visto.values()].some((r) => r > 0.25);
+        boton.classList.toggle("is-oculto", enZonaMuerta);
+      },
+      { threshold: [0, 0.25, 0.5, 1] }
+    );
+    zonas.forEach((z) => obs.observe(z));
+
+    // Seguro: si el observador existe pero nunca entrega nada, el
+    // botón se quedaría escondido para siempre y perderíamos el
+    // único acceso a WhatsApp. A los 1.5 s lo damos por visible.
+    setTimeout(() => {
+      if (!respondio) boton.classList.remove("is-oculto");
+    }, 1500);
+  }
+
+  /* ── Menú de hamburguesa ─────────────────────────────────── */
+
+  function prepararMenu() {
+    const nav = $("#nav");
+    const boton = $("#menuBoton");
+    if (!nav || !boton) return;
+
+    const conGsap = () => document.documentElement.classList.contains("con-gsap");
+    const esMovil = () => matchMedia("(max-width: 760px)").matches;
+    const enlaces = $$("#nav a");
+
+    const abrir = () => {
+      nav.classList.add("is-abierto");
+      boton.setAttribute("aria-expanded", "true");
+      if (!conGsap() || !esMovil()) return;
+      gsap.killTweensOf([nav, enlaces]);
+      gsap.fromTo(nav,
+        { opacity: 0, y: window.__quieto ? 0 : -10 },
+        { opacity: 1, y: 0, duration: .3, ease: SALIDA }
+      );
+      gsap.fromTo(enlaces,
+        { opacity: 0, y: window.__quieto ? 0 : -8 },
+        { opacity: 1, y: 0, duration: .35, ease: SALIDA, stagger: .045, delay: .05 }
+      );
+    };
+
+    const cerrar = () => {
+      boton.setAttribute("aria-expanded", "false");
+      // Sin animación posible: se cierra de golpe
+      if (!conGsap() || !esMovil()) {
+        nav.classList.remove("is-abierto");
+        return;
+      }
+      gsap.killTweensOf([nav, enlaces]);
+      // La salida es más corta que la entrada: el sistema responde
+      // más rápido de lo que se anuncia.
+      gsap.to(nav, {
+        opacity: 0, y: window.__quieto ? 0 : -8,
+        duration: .18, ease: SALIDA,
+        onComplete: () => {
+          nav.classList.remove("is-abierto");
+          gsap.set([nav, enlaces], { clearProps: "opacity,transform" });
+        },
+      });
+    };
+
+    boton.addEventListener("click", () => {
+      nav.classList.contains("is-abierto") ? cerrar() : abrir();
+    });
+
+    enlaces.forEach((a) => a.addEventListener("click", () => {
+      if (nav.classList.contains("is-abierto")) cerrar();
+    }));
+
+    // Escape cierra, como cualquier panel superpuesto
+    addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && nav.classList.contains("is-abierto")) {
+        cerrar();
+        boton.focus();
+      }
+    });
+  }
+
+  /* ── Arranque ────────────────────────────────────────────── */
+
+  function iniciar() {
+    aplicarNegocio();
+    pintarServicios();
+    pintarPuntos();
+    pintarFaq();
+    pintarHorarios();
+    cargarCal();
+    activarAnimaciones();
+
+    prepararMenu();
+
+    controlarFlotante();
+
+    const cabecera = $("#cabecera");
+
+    // El alto real de la cabecera alimenta el cálculo del hero.
+    // Fijarlo a ojo deja al hero cortado por unos píxeles.
+    const medirCabecera = () => {
+      const raiz = document.documentElement;
+      const alto = Math.round(cabecera.getBoundingClientRect().height);
+
+      // Solo escribimos medidas creíbles. Si medimos antes de que la
+      // tipografía asiente, salen valores absurdos (0, o 130px de
+      // cabecera) que envenenan el cálculo del hero.
+      if (alto > 40 && alto < 140) raiz.style.setProperty("--alto-cabecera", alto + "px");
+      if (window.innerHeight > 200) raiz.style.setProperty("--vh", window.innerHeight / 100 + "px");
+    };
+    medirCabecera();
+    addEventListener("resize", medirCabecera, { passive: true });
+    addEventListener("orientationchange", medirCabecera, { passive: true });
+    // Otra pasada cuando ya cargaron fuentes e imágenes
+    addEventListener("load", medirCabecera);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(medirCabecera);
+
+    const alScroll = () => cabecera.classList.toggle("is-fija", scrollY > 12);
+    addEventListener("scroll", alScroll, { passive: true });
+    alScroll();
+  }
+
+  document.addEventListener("DOMContentLoaded", iniciar);
+})();
+</script>
+</body>
+</html>
